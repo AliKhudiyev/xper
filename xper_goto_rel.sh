@@ -9,11 +9,14 @@ USER=$5
 USERNAME=$(git config --global user.name | tr -d ' ')
 CURRENT_VERSION=$(git branch --show-current)
 
-versions=($(ls .git/refs/heads | grep -v "main" | grep -E ".+_v[0-9].*" | sort))
+include=".+_v[0-9].*"
+if [[ $CURRENT_VERSION == $USERNAME ]]; then include=".+"; fi
+
+versions=($(ls .git/refs/heads | grep -v "main" | grep -E $include | sort))
 target_version=$CURRENT_VERSION
 
 if [[ $GLOBAL -eq 0 ]]; then
-	versions=($(ls .git/refs/heads | grep -v "main" | grep -E ".+_v[0-9].*" | grep "$USER" | sort))
+	versions=($(ls .git/refs/heads | grep -v "main" | grep -E $include | grep "$USER" | sort))
 fi
 
 STEPS=$(($4 % ${#versions[@]}))

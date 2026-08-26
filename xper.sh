@@ -215,6 +215,9 @@ case $CMD in
 	children)
 		xper_children.sh
 		;;
+	parent)
+		xper_parent.sh
+		;;
 	*)
 		print_help
 		;;
