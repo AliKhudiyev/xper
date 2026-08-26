@@ -12,4 +12,4 @@ delimiter='_'
 
 if [[ ${#version_nums[@]} -eq 1 ]]; then delimiter='_'; fi
 parent=$(echo $CURRENT_VERSION | rev | cut -d $delimiter -f 2- | rev)
-
+echo $parent

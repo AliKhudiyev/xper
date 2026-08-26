@@ -88,7 +88,6 @@ FLAG_YES=0
 FLAG_WRAP=0
 FLAG_GLOBAL=0
 FLAG_NORMAL_MODE=0
-FLAG_SCRATCH=0
 
 OPTARG_TAG=""
 OPTARG_USER=$(git config --global user.name | tr -d ' ')
@@ -152,9 +151,8 @@ case $CMD in
 		xper_init.sh
 		;;
 	new)
-		ARG1="--progressive"
-		if [[ $FLAG_SCRATCH -eq 1 ]]; then ARG1="--scratch"; fi
-		xper_new.sh $ARG1 $OPTARG_TAG $FLAG_YES
+		echo flgyes=$FLAG_YES
+		xper_new.sh $FLAG_SCRATCH "$OPTARG_TAG" $FLAG_YES
 		;;
 	tag)
 		xper_new.sh $OPTARG_TAG

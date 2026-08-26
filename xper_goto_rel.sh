@@ -8,6 +8,7 @@ USER=$5
 
 USERNAME=$(git config --global user.name | tr -d ' ')
 CURRENT_VERSION=$(git branch --show-current)
+PROJ_DIR=$(git rev-parse --show-toplevel)
 
 include=".+_v[0-9].*"
 if [[ $CURRENT_VERSION == $USERNAME ]]; then include=".+"; fi
@@ -52,4 +53,8 @@ for i in ${!versions[@]}; do
 done
 
 echo target_version=$target_version
-git checkout ${target_version}
+
+if [[ $target_version != $CURRENT_VERSION ]]; then
+	git add $PROJ_DIR/** && git commit -m "before jump by $USERNAME"
+	git checkout ${target_version}
+fi

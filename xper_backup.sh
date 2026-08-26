@@ -10,7 +10,7 @@ fi
 
 GIT_REPO=$(git remote -v)
 USERNAME=$(git config --global user.name | tr -d ' ')
-PROJ_DIR=$(git rev-parse --get-dir)
+PROJ_DIR=$(git rev-parse --show-toplevel)
 
 if [[ $GIT_REPO == "" ]]; then
 	echo "no remote repository was found"
@@ -36,7 +36,7 @@ done
 
 echo user=$USER mode=$MODE locked=$LOCKED tag=$TAG
 
-git add $PROJ_DIR && git commit -m "commit by $USERNAME" && git push
+git add $PROJ_DIR/** && git commit -m "commit by $USERNAME" && git push
 failed=$?
 
 if [[ $failed -ne 0 ]]; then
