@@ -36,7 +36,7 @@ done
 
 echo user=$USER mode=$MODE locked=$LOCKED tag=$TAG
 
-git add $PROJ_DIR/** && git commit -m "commit by $USERNAME" && git push
+git add $PROJ_DIR && git commit -m "commit by $USERNAME" && git push
 failed=$?
 
 if [[ $failed -ne 0 ]]; then

@@ -27,6 +27,7 @@ new_from_scratch(){
 	echo "${BASE}'s last children = $CHILDREN"
 	git checkout -b ${BASE}_v$((CHILDREN+1))
 	git commit --allow-empty -m "Initial placeholder commit"
+	xper.sh sort
 };
 
 new_from_current(){
@@ -34,18 +35,27 @@ new_from_current(){
 	echo "current last children = $CHILDREN"
 	git checkout -b ${CURRENT_VERSION}.$((CHILDREN+1))
 	git commit --allow-empty -m "Initial placeholder commit"
+	xper.sh sort
 };
 
+git add $PROJ_DIR && git commit -m "commit by $USERNAME before branching"
 diff=$(git diff $CURRENT_VERSION $PARENT_VERSION)
+# echo diff=$diff
 
 if [[ $SCRATCH -eq 1 || $PARENT_VERSION == "" ]]; then
-	git add $PROJ_DIR/** && git commit -m "commit by $USERNAME"
 	new_from_scratch
-	sed -iE "s/tag=.*/tag=$TAG/g" ".xper"
+	if [[ $OSTYPE == "darwin"* ]]; then
+		sed -i "" "s/tag=.*/tag=$TAG/g" .xper
+	else
+		sed -i "s/tag=.*/tag=$TAG/g" .xper
+	fi
 elif [[ $diff != "" || $YES -eq 1 ]]; then
-	git add $PROJ_DIR/** && git commit -m "commit by $USERNAME"
 	new_from_current
-	sed -iE "s/tag=.*/tag=$TAG/g" ".xper"
+	if [[ $OSTYPE == "darwin"* ]]; then
+		sed -i "" "s/tag=.*/tag=$TAG/g" .xper
+	else
+		sed -i "s/tag=.*/tag=$TAG/g" .xper
+	fi
 else
 	echo "[xper_new] did not create a new version"
 fi

@@ -88,11 +88,16 @@ FLAG_YES=0
 FLAG_WRAP=0
 FLAG_GLOBAL=0
 FLAG_NORMAL_MODE=0
+FLAG_FIRST=0
+FLAG_LAST=0
+FLAG_FILEPATH=0
 
 OPTARG_TAG=""
 OPTARG_USER=$(git config --global user.name | tr -d ' ')
 OPTARG_BACKWARD_STEPS=0
 OPTARG_FORWARD_STEPS=0
+OPTARG_SORTBY=""
+OPTARG_FILEPATH=""
 OPTARG_SUBCMD=""
 
 while [[ $# -gt 0 ]]; do
@@ -138,6 +143,21 @@ while [[ $# -gt 0 ]]; do
 			FLAG_NORMAL_MODE=0
 			shift
 			;;
+		-p|--path)
+			FLAG_FILEPATH=1
+			OPTARG_FILEPATH=$2
+			shift 2
+			;;
+		--first)
+			FLAG_FIRST=1
+			;;
+		--last)
+			FLAG_LAST=1
+			;;
+		--by)
+			OPTARG_SORTBY=$2
+			shift 2
+			;;
 		*)
 			OPTARG_SUBCMD=$1
 			shift
@@ -175,7 +195,7 @@ case $CMD in
 	jump|goto)
 		FORWARD=1
 		if [[ $OPTARG_SUBCMD != "" ]]; then
-			xper_goto.sh $OPTARG_SUBCMD
+			xper_goto.sh "$OPTARG_SUBCMD" "$FLAG_FIRST" "$FLAG_LAST"
 		else
 			if [[ $OPTARG_BACKWARD_STEPS -gt $OPTARG_FORWARD_STEPS ]]; then
 				FORWARD=0
@@ -196,7 +216,7 @@ case $CMD in
 		if [[ $OPTARG_SUBCMD == "jump" || $OPTARG_SUBCMD == "goto" ]]; then
 			FORWARD=1
 			if [[ $OPTARG_SUBCMD != "" ]]; then
-				xper_goto.sh $OPTARG_SUBCMD
+				xper_goto.sh "$OPTARG_SUBCMD" "$FLAG_FIRST" "$FLAG_LAST"
 			elif [[ $OPTARG_BACKWARD_STEPS -gt $OPTARG_FORWARD_STEPS ]]; then
 				FORWARD=0
 				STEPS=$(($OPTARG_BACKWARD_STEPS-$OPTARG_FORWARD_STEPS))
@@ -207,14 +227,23 @@ case $CMD in
 			fi
 			version=$(git branch --show-current)
 		fi
-		xper_goto.sh $current_version
-		xper_diff.sh $version
+		xper_goto.sh "$current_version" "$FLAG_FIRST" "$FLAG_LAST"
+		xper_diff.sh "$version"
 		;;
 	children)
 		xper_children.sh
 		;;
 	parent)
 		xper_parent.sh
+		;;
+	logfile)
+		xper_logfp.sh "$FLAG_FILEPATH" "$OPTARG_FILEPATH"
+		;;
+	sort)
+		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER"
+		;;
+	clean)
+		xper_clean.sh
 		;;
 	*)
 		print_help

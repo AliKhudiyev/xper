@@ -24,4 +24,5 @@ $ xper backup
 - Remove `lock` and `unlock`; use `finish` and `modify` properly instead
 - Add intuitive `git` command execution wrapper
 - ~Bug fix: need to `git add` and `git commit` before sensitive `xper ...` operations~
+- Add `xper sort [--by <log-field>]` command
 - Write tests

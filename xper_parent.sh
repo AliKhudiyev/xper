@@ -8,7 +8,7 @@ if [[ $CURRENT_VERSION == $USERNAME || $CURRENT_VERSION == "main" ]]; then
 fi
 
 version_nums=($(echo $CURRENT_VERSION | tr '.' ' '))
-delimiter='_'
+delimiter='.'
 
 if [[ ${#version_nums[@]} -eq 1 ]]; then delimiter='_'; fi
 parent=$(echo $CURRENT_VERSION | rev | cut -d $delimiter -f 2- | rev)
