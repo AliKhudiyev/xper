@@ -239,6 +239,9 @@ case $CMD in
 	logfile)
 		xper_logfp.sh "$FLAG_FILEPATH" "$OPTARG_FILEPATH"
 		;;
+	owner)
+		xper_owner.sh
+		;;
 	sort)
 		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER"
 		;;

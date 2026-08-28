@@ -36,6 +36,7 @@ done
 
 echo user=$USER mode=$MODE locked=$LOCKED tag=$TAG
 
+xper.sh new
 git add $PROJ_DIR && git commit -m "commit by $USERNAME" && git push
 failed=$?
 

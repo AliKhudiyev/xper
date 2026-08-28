@@ -1,8 +1,13 @@
 #!/bin/bash
-# usage: xper_get_version.sh STR_BRANCH
+# usage: xper_version.sh FLAG_FULL
 
-FULL=0
-BRANCH=$1
+if [[ ! -d .git ]]; then
+	echo ""
+	exit 0
+fi
+
+FULL=$1
+BRANCH=$(git branch --show-current)
 
 if [[ $FULL -eq 1 ]]; then
 	echo $BRANCH

@@ -1,9 +1,9 @@
 #!/bin/bash
 # usage: xper_sort STR_SORTBY FLAG_GLOBAL STR_USER
 
-USERNAME=$(git config --global user.name | tr -d ' ')
-CURRENT_VERSION=$(git branch --show-current)
-PROJ_DIR=$(git rev-parse --show-toplevel)
+USERNAME=$(xper_user.sh)
+CURRENT_VERSION=$(xper_version.sh 1)
+PROJ_DIR=$(xper_rootdir.sh)
 
 SORTBY=$1
 GLOBAL=$2
@@ -42,7 +42,7 @@ if [[ $SORTBY == "" ]]; then
 else
 	for head in $(cat .git/refs/heads_filtered); do
 		version=$(xper_get_version.sh "$head")
-		git checkout $head
+		git checkout $head >/dev/null 2>&1
 		logfp=$(xper.sh logfile)
 		# echo logfp=$logfp
 		if [[ -f $logfp ]]; then
@@ -69,6 +69,7 @@ else
 	else
 		cat .git/refs/index | sort -t '|' -k 2 -n -o .git/refs/index
 	fi
+	git checkout $CURRENT_VERSION >/dev/null 2>&1
 fi
 
 # rm .git/refs/heads_filtered

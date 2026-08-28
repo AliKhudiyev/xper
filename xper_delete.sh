@@ -1,22 +1,18 @@
 #!/bin/bash
 
-USERNAME=$(git config --global user.name | tr -d ' ')
+USERNAME=$(xper_user.sh)
 BASE=${USERNAME}
-NODE=$(git branch --show-current)
+NODE=$(xper_version.sh 1)
 CHILDREN=$(git branch --list "${NODE}.*" | grep -vE "${NODE}\..*\..*")
-PROJ_DIR=$(git rev-parse --show-toplevel)
+PROJ_DIR=$(xper_rootdir.sh)
 
-if [[ $NODE != $BASE ]]; then
+if [[ $NODE != $BASE && $NODE == "$USERNAME"* ]]; then
 	git add $PROJ_DIR && git commit -m "commit by $USERNAME before deletion of $NODE"
 	git checkout $BASE
 	git branch -D $NODE
 
 	if [[ -e ".git/refs/index" ]]; then
-		if [[ $OSTYPE == "darwin"* ]]; then
-			sed -i "" "/$NODE/d" .git/refs/index
-		else
-			sed -i "/$NODE/d" .git/refs/index
-		fi
+		sed "/$NODE/d" .git/refs/index > .git/refs/index.tmp && mv .git/refs/index.tmp .git/refs/index
 	fi
 
 	for child in $CHILDREN; do
@@ -24,5 +20,5 @@ if [[ $NODE != $BASE ]]; then
 		xper_delete.sh
 	done
 else
-	echo "Cannot delete BASE"
+	echo "[xper_delete] cannot delete $NODE (either BASE or not yours)"
 fi

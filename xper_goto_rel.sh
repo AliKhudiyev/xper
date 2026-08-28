@@ -6,14 +6,17 @@ WRAP=$2
 FORWARD=$3
 USER=$5
 
-USERNAME=$(git config --global user.name | tr -d ' ')
-CURRENT_VERSION=$(git branch --show-current)
-PROJ_DIR=$(git rev-parse --show-toplevel)
+USERNAME=$(xper_user.sh)
+CURRENT_VERSION=$(xper_version.sh 1)
+PROJ_DIR=$(xper_rootdir.sh)
 
 include=".+_v[0-9].*"
-if [[ $CURRENT_VERSION == $USERNAME ]]; then 
-	include=".+"
+if [[ $USER == "" ]]; then
+	USER=$USERNAME
 fi
+# if [[ $CURRENT_VERSION == $USERNAME ]]; then 
+# 	include=".+"
+# fi
 
 # versions=($(ls .git/refs/heads | grep -v "main" | grep -E $include | sort))
 if [[ ! -e ".git/refs/index" ]]; then

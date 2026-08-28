@@ -5,15 +5,11 @@ SCRATCH=$1
 TAG=$2
 YES=$3
 
-USERNAME="$(git config --local user.name)"
-CURRENT_VERSION="$(git branch --show-current)"
+USERNAME=$(xper_user.sh)
+CURRENT_VERSION=$(xper_version.sh 1)
 PARENT_VERSION=$(xper.sh parent)
-PROJ_DIR=$(git rev-parse --show-toplevel)
+PROJ_DIR=$(xper_rootdir.sh)
 
-if [[ ${#USERNAME} -eq 0 ]]; then
-	USERNAME="$(git config --global user.name 2>/dev/null)"
-fi
-USERNAME=$(echo $USERNAME | tr -d ' ')
 BASE=${USERNAME}
 
 echo "scratch=$SCRATCH tag=$TAG yes=$YES"
@@ -34,28 +30,20 @@ new_from_current(){
 	CHILDREN=$(git branch --list "$CURRENT_VERSION.*" | grep -vE "$CURRENT_VERSION\..*\..*" | sed -E "s/${CURRENT_VERSION}\.([0-9]+)/\1/g" | sort -n | tail -1)
 	echo "current last children = $CHILDREN"
 	git checkout -b ${CURRENT_VERSION}.$((CHILDREN+1))
-	git commit --allow-empty -m "Initial placeholder commit"
+	git commit --allow-empty -m "[as initial placeholder commit]"
 	xper.sh sort
 };
 
-git add $PROJ_DIR && git commit -m "commit by $USERNAME before branching"
-diff=$(git diff $CURRENT_VERSION $PARENT_VERSION)
+xper_save.sh "before branching"
+diff=$(xper_diff.sh $PARENT_VERSION)
 # echo diff=$diff
 
 if [[ $SCRATCH -eq 1 || $PARENT_VERSION == "" ]]; then
 	new_from_scratch
-	if [[ $OSTYPE == "darwin"* ]]; then
-		sed -i "" "s/tag=.*/tag=$TAG/g" .xper
-	else
-		sed -i "s/tag=.*/tag=$TAG/g" .xper
-	fi
+	sed "s/tag=.*/tag=$TAG/g" .xper > .xper.tmp && mv .xper.tmp .xper
 elif [[ $diff != "" || $YES -eq 1 ]]; then
 	new_from_current
-	if [[ $OSTYPE == "darwin"* ]]; then
-		sed -i "" "s/tag=.*/tag=$TAG/g" .xper
-	else
-		sed -i "s/tag=.*/tag=$TAG/g" .xper
-	fi
+	sed "s/tag=.*/tag=$TAG/g" .xper > .xper.tmp && mv .xper.tmp .xper
 else
 	echo "[xper_new] did not create a new version"
 fi
