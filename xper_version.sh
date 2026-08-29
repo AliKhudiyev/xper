@@ -12,9 +12,9 @@ BRANCH=$(git branch --show-current)
 if [[ $FULL -eq 1 ]]; then
 	echo $BRANCH
 else
-	if grep -qE ".+_v[0-9]+(\.[0-9]+)*" <<< "$BRANCH"; then
-		echo $BRANCH | rev | cut -d 'v' -f 1 | rev
-	else
-		echo 0
+	version=$(echo $BRANCH | rev | cut -d 'v' -f 1 -s | rev)
+	if [[ $version == "" ]]; then
+		version=0
 	fi
+	echo $version
 fi

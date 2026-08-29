@@ -91,13 +91,21 @@ FLAG_NORMAL_MODE=0
 FLAG_FIRST=0
 FLAG_LAST=0
 FLAG_FILEPATH=0
+FLAG_CLEAR=0
+FLAG_ADD=0
+FLAG_REMOVE=0
+FLAG_AFTER=0
+FLAG_BEFORE=0
+FLAG_SWAP=0
 
 OPTARG_TAG=""
-OPTARG_USER=$(git config --global user.name | tr -d ' ')
+OPTARG_USER=$(xper_user.sh)
 OPTARG_BACKWARD_STEPS=0
 OPTARG_FORWARD_STEPS=0
 OPTARG_SORTBY=""
 OPTARG_FILEPATH=""
+OPTARG_VERSION_SOURCE="$(xper_version.sh 1)"
+OPTARG_VERSION_TARGET=""
 OPTARG_SUBCMD=""
 
 while [[ $# -gt 0 ]]; do
@@ -147,6 +155,38 @@ while [[ $# -gt 0 ]]; do
 			FLAG_FILEPATH=1
 			OPTARG_FILEPATH=$2
 			shift 2
+			;;
+		-c|--clear)
+			FLAG_CLEAR=1
+			shift
+			;;
+		-a|--add)
+			FLAG_ADD=1
+			OPTARG_VERSION_SOURCE=$2
+			shift 2
+			;;
+		-rm|--remove)
+			FLAG_REMOVE=1
+			OPTARG_VERSION_SOURCE=$2
+			shift=2
+			;;
+		--after)
+			FLAG_AFTER=1
+			OPTARG_VERSION_TARGET=$2
+			OPTARG_VERSION_SOURCE=$2
+			shift 3
+			;;
+		--before)
+			FLAG_BEFORE=1
+			OPTARG_VERSION_TARGET=$2
+			OPTARG_VERSION_SOURCE=$2
+			shift 3
+			;;
+		--swap)
+			FLAG_SWAP=1
+			OPTARG_VERSION_TARGET=$2
+			OPTARG_VERSION_SOURCE=$2
+			shift 3
 			;;
 		--first)
 			FLAG_FIRST=1
@@ -244,6 +284,9 @@ case $CMD in
 		;;
 	sort)
 		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER"
+		;;
+	index)
+		xper_index.sh "$FLAG_CLEAR" "$FLAG_ADD" "$FLAG_REMOVE" "$OPTARG_VERSION_SOURCE" "$FLAG_AFTER" "$FLAG_BEFORE" "$FLAG_SWAP" "$OPTARG_VERSION_TARGET"
 		;;
 	clean)
 		xper_clean.sh
