@@ -33,12 +33,12 @@ $ xper backup
     `xper backup --release` can be done by person holding they key, and this operation will take the write access away from the current key holder/user.
     - `xper update --acquire` runs `xper update` but unlocks the branch (ie, gives write access) if the key can be acquired. A key can be acquired only when the person with the key does `xper backup --release` on it before this update operation.
 - `xper update` should lock the branch (ie, removes write access) whose owner doesn't match the local user, unless the branch is in sequential mode (ie, original owner has run `xper backup --release` on it).
-- `xper new` must create `LOCALUSER_vXY` when performed on `OWNER_vXX` by branching from owner's version and giving write accesses back. `dist(XX, XY)` must be as minimum as possible. `reference(LOCALUSER_vXY)=OWNER_vXX`.
+- ~`xper new` must create `LOCALUSER_vXY` when performed on `OWNER_vXX` by branching from owner's version and giving write accesses back. `dist(XX, XY)` must be as minimum as possible. `reference(LOCALUSER_vXY)=OWNER_vXX`.~
 - `xper delete` shouldn't do anything on branches not owned by the local user.
 - Test and fix `--global` and `--user` options for all (sub)commands.
-- Implement `xper sort --only-leaf` that keeps only leaf nodes in the index file after sorting. A node `vXY` is leaf iff there doesn't exist a node `vXYZ` for any `Z`.
-    - Implement `xper index [-c|--clear]` to clear index file completely.
-    - Implement `xper index [-a|--add] [<version>]]` to add the version (current version by default) to the index file.
-    - Implement `xper index [-rm|--remove] [<version>]]` to remove the version from the index file.
-    - Implement `xper index <vXX> [--after|--before|--swap <vXY>] to reorder the index file entries `vXX` and `vXY` accordingly.
+- ~Implement `xper sort --only-leaf` that keeps only leaf nodes in the index file after sorting. A node `vXY` is leaf iff there doesn't exist a node `vXYZ` for any `Z`.~
+    - ~Implement `xper index [-c|--clear]` to clear index file completely.~
+    - ~Implement `xper index [-a|--add] [<version>]]` to add the version (current version by default) to the index file.~
+    - ~Implement `xper index [-rm|--remove] [<version>]]` to remove the version from the index file.~
+    - ~Implement `xper index <vXX> [--after|--before|--swap <vXY>] to reorder the index file entries `vXX` and `vXY` accordingly.~
 

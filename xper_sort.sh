@@ -1,27 +1,35 @@
 #!/bin/bash
-# usage: xper_sort STR_SORTBY FLAG_GLOBAL STR_USER
+# usage: xper_sort STR_SORTBY FLAG_GLOBAL STR_USER FLAG_ONLYLEAF
 
 USERNAME=$(xper_user.sh)
 CURRENT_VERSION=$(xper_version.sh 1)
-PROJ_DIR=$(xper_rootdir.sh)
+ROOT_DIR=$(xper_rootdir.sh)
+
+PROJ_DIR=$ROOT_DIR
+HEADS_DIR=$ROOT_DIR/.git/refs/heads
+INDEX_FP=$ROOT_DIR/.git/refs/index
 
 SORTBY=$1
 GLOBAL=$2
-USER=$3
+USER=$3; [[ $USER == "" ]] && USER=$USERNAME
+ONLYLEAF=$4
 RECURSIVE_SORT=0
 
-git add $PROJ_DIR && git commit -m "commit by $USERNAME before sorting"
-
-if [[ $USER == "" ]]; then
-	USER=$CURRENT_USER
-fi
+# git add $PROJ_DIR && git commit -m "commit by $USERNAME before sorting"
+xper_save.sh "before sorting"
 
 if [[ $GLOBAL -eq 1 ]]; then
 	echo global=1
-	ls .git/refs/heads > .git/refs/heads_filtered
+	git branch --list --format='%(refname:short)' > ${HEADS_DIR}_filtered
 else
 	echo global=0
-	(ls .git/refs/heads | grep -E "${USER}.*") > .git/refs/heads_filtered
+	git branch --list "${USER}*" --format='%(refname:short)' > ${HEADS_DIR}_filtered
+fi
+
+versions_found=$(cat ${HEADS_DIR}_filtered | wc -l | tr -d ' ')
+if [[ $versions_found -eq 0 ]]; then
+	echo "[xper_sort] user $USER does not exist"
+	exit 0
 fi
 
 # TODO: fix this part.
@@ -31,16 +39,16 @@ fi
 # 	2.2) -n option if the column values are numerics
 # 	2.3) -t ',' -n option if the column values are multiple numerics
 
-rm .git/refs/index 2>/dev/null
+rm $INDEX_FP 2>/dev/null
 
 if [[ $SORTBY == "" ]]; then
-	for head in $(cat .git/refs/heads_filtered); do
+	for head in $(cat ${HEADS_DIR}_filtered); do
 		version=$(xper_get_version.sh "$head")
-		echo "$head|$version" >> .git/refs/index
+		echo "$head|$version" >> $INDEX_FP
 	done
-	cat .git/refs/index | sort -t '|' -k 2 -V -o .git/refs/index
+	cat $INDEX_FP | sort -t '|' -k 2 -V -o $INDEX_FP
 else
-	for head in $(cat .git/refs/heads_filtered); do
+	for head in $(cat ${HEADS_DIR}_filtered); do
 		version=$(xper_get_version.sh "$head")
 		git checkout $head >/dev/null 2>&1
 		logfp=$(xper.sh logfile)
@@ -54,22 +62,39 @@ else
 		else
 			sortby="null"
 		fi
-		echo "$head|$sortby" >> .git/refs/index
+		echo "$head|$sortby" >> $INDEX_FP
 	done
 
 	if [[ $RECURSIVE_SORT -eq 1 ]]; then
 		keys=""
-		vals=($(cat .git/refs/index | cut -d ',' -f 1-))
+		vals=($(cat $INDEX_FP | cut -d ',' -f 1-))
 
 		for ((i=2; i<=${#vals[@]}; ++i)); do
 			keys="$keys -k $i,$i"
 		done
 
-		cat .git/refs/index | sed -E "s/\|/\|,/g" | sort -t ',' $keys -n -o .git/refs/index
+		cat $INDEX_FP | sed -E "s/\|/\|,/g" | sort -t ',' $keys -n -o $INDEX_FP
 	else
-		cat .git/refs/index | sort -t '|' -k 2 -n -o .git/refs/index
+		cat $INDEX_FP | sort -t '|' -k 2 -n -o $INDEX_FP
 	fi
 	git checkout $CURRENT_VERSION >/dev/null 2>&1
 fi
 
-# rm .git/refs/heads_filtered
+if [[ $ONLYLEAF -eq 1 ]]; then
+	lnum=1
+	versions=$(cat $INDEX_FP | cut -d '|' -f 1)
+	deleted=()
+	for version in $versions; do
+		children=$(git branch --list "${version}.*" | grep -vE "${version}\..*\..*")
+		# echo "version=$version : children=$children"
+		if [[ $children != "" ]]; then
+			deleted+="${lnum}d;"
+		fi
+		lnum=$((lnum+1))
+	done
+
+	# echo deleted=$deleted
+	if [[ $deleted != "" ]]; then
+		sed "${deleted}" $INDEX_FP > $INDEX_FP.tmp && mv $INDEX_FP.tmp $INDEX_FP
+	fi
+fi

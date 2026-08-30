@@ -97,6 +97,7 @@ FLAG_REMOVE=0
 FLAG_AFTER=0
 FLAG_BEFORE=0
 FLAG_SWAP=0
+FLAG_ONLYLEAF=0
 
 OPTARG_TAG=""
 OPTARG_USER=$(xper_user.sh)
@@ -228,6 +229,10 @@ while [[ $# -gt 0 ]]; do
 			fi
 			shift
 			;;
+		--only-leaf)
+			FLAG_ONLYLEAF=1
+			shift
+			;;
 		--first)
 			FLAG_FIRST=1
 			;;
@@ -327,7 +332,7 @@ case $CMD in
 		xper_owner.sh
 		;;
 	sort)
-		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER"
+		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER" "$FLAG_ONLYLEAF"
 		;;
 	index)
 		xper_index.sh "$FLAG_CLEAR" "$FLAG_ADD" "$FLAG_REMOVE" "$OPTARG_VERSION_SOURCE" "$FLAG_AFTER" "$FLAG_BEFORE" "$FLAG_SWAP" "$OPTARG_VERSION_TARGET"
