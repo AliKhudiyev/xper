@@ -115,16 +115,23 @@ while [[ $# -gt 0 ]]; do
 			shift
 			;;
 		-t|--tag)
-			OPTARG_TAG=$2
-			shift 2
+			if [[ $# -ge 2 ]]; then
+				OPTARG_TAG=$2
+				shift
+			fi
+			shift
 			;;
 		-y|--yes)
 			FLAG_YES=1
 			shift
 			;;
 		-u|--user)
-			OPTARG_USER=$2
-			shift 2
+			if [[ $# -ge 2 ]]; then
+				OPTARG_USER=$2
+				# echo optarg_user=$2
+				shift
+			fi
+			shift
 			;;
 		-w|--wrap)
 			FLAG_WRAP=1
@@ -135,13 +142,19 @@ while [[ $# -gt 0 ]]; do
 			shift
 			;;
 		-b|--backward)
-			OPTARG_BACKWARD_STEPS=$2
-			shift 2
+			if [[ $# -ge 2 ]]; then
+				OPTARG_BACKWARD_STEPS=$2
+				shift
+			fi
+			shift
 			;;
 		-f|--forward)
 			echo forward option
-			OPTARG_FORWARD_STEPS=$2
-			shift 2
+			if [[ $# -ge 2 ]]; then
+				OPTARG_FORWARD_STEPS=$2
+				shift
+			fi
+			shift
 			;;
 		-n|--normal)
 			FLAG_NORMAL_MODE=1
@@ -153,8 +166,11 @@ while [[ $# -gt 0 ]]; do
 			;;
 		-p|--path)
 			FLAG_FILEPATH=1
-			OPTARG_FILEPATH=$2
-			shift 2
+			if [[ $# -ge 2 ]]; then
+				OPTARG_FILEPATH=$2
+				shift
+			fi
+			shift
 			;;
 		-c|--clear)
 			FLAG_CLEAR=1
@@ -162,31 +178,55 @@ while [[ $# -gt 0 ]]; do
 			;;
 		-a|--add)
 			FLAG_ADD=1
-			OPTARG_VERSION_SOURCE=$2
-			shift 2
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSION_SOURCE=$2
+				shift
+			fi
+			shift
 			;;
 		-rm|--remove)
 			FLAG_REMOVE=1
-			OPTARG_VERSION_SOURCE=$2
-			shift=2
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSION_SOURCE=$2
+				shift
+			fi
+			shift
 			;;
 		--after)
 			FLAG_AFTER=1
-			OPTARG_VERSION_TARGET=$2
-			OPTARG_VERSION_SOURCE=$2
-			shift 3
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSION_TARGET=$2
+				shift
+			fi
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSION_SOURCE=$2
+				shift
+			fi
+			shift
 			;;
 		--before)
 			FLAG_BEFORE=1
-			OPTARG_VERSION_TARGET=$2
-			OPTARG_VERSION_SOURCE=$2
-			shift 3
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSION_TARGET=$2
+				shift
+			fi
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSION_SOURCE=$2
+				shift
+			fi
+			shift
 			;;
 		--swap)
 			FLAG_SWAP=1
-			OPTARG_VERSION_TARGET=$2
-			OPTARG_VERSION_SOURCE=$2
-			shift 3
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSION_TARGET=$2
+				shift
+			fi
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSION_SOURCE=$2
+				shift
+			fi
+			shift
 			;;
 		--first)
 			FLAG_FIRST=1
@@ -195,8 +235,11 @@ while [[ $# -gt 0 ]]; do
 			FLAG_LAST=1
 			;;
 		--by)
-			OPTARG_SORTBY=$2
-			shift 2
+			if [[ $# -ge 2 ]]; then
+				OPTARG_SORTBY=$2
+				shift
+			fi
+			shift
 			;;
 		*)
 			OPTARG_SUBCMD=$1
@@ -207,7 +250,7 @@ done
 
 case $CMD in
 	init)
-		OPTARG_USER=$(git config --global user.name | tr -d ' ')
+		# OPTARG_USER=$(git config --global user.name | tr -d ' ')
 		xper_init.sh
 		;;
 	new)
@@ -235,7 +278,8 @@ case $CMD in
 	jump|goto)
 		FORWARD=1
 		if [[ $OPTARG_SUBCMD != "" ]]; then
-			xper_goto.sh "$OPTARG_SUBCMD" "$FLAG_FIRST" "$FLAG_LAST"
+			# echo absolute jump
+			xper_goto.sh "$OPTARG_SUBCMD" "$FLAG_FIRST" "$FLAG_LAST" "$OPTARG_USER"
 		else
 			if [[ $OPTARG_BACKWARD_STEPS -gt $OPTARG_FORWARD_STEPS ]]; then
 				FORWARD=0

@@ -6,11 +6,13 @@ TAG=$2
 YES=$3
 
 USERNAME=$(xper_user.sh)
+OWNER=$(xper_owner.sh)
 CURRENT_VERSION=$(xper_version.sh 1)
 PARENT_VERSION=$(xper.sh parent)
-PROJ_DIR=$(xper_rootdir.sh)
+ROOT_DIR=$(xper_rootdir.sh)
 
-BASE=${USERNAME}
+PROJ_DIR=$ROOT_DIR
+INDEX_FP="$ROOT_DIR/.git/refs/index"
 
 echo "scratch=$SCRATCH tag=$TAG yes=$YES"
 echo "username is $USERNAME"
@@ -40,25 +42,39 @@ version_distance(){
 }
 
 pick_new_version(){
+	local version_target=()
 	IFS='.' read -r -a version_target <<< "$1"
-	IFS='.' read -r -a version_prev <<< "$1"
-	IFS='.' read -r -a version_next <<< "$1"
+	# local version_target="$1"
+	local user_versions=$(git branch --list "$USERNAME*")
+	local current_version=""
+	local prev_version=""
 
-	dist_prev=$(version_distance $version_target $version_prev)
-	dist_next=$(version_distance $version_target $version_next)
+	# echo "version_target=${version_target[@]}"
+	# echo "user_versions=${user_versions}"
+	for ((i=0; i<${#version_target[@]}; ++i)); do
+		current_version+="${version_target[i]}"
+		user_versions=$(echo $user_versions | grep -oE "${USERNAME}_v${current_version}(\.[0-9]+)*")
+		# echo current_version=$current_version
+		# echo user_versions=$user_versions
+		if [[ ${#user_versions} -eq 0 ]]; then
+			# echo current_version=$current_version
+			break
+		fi
+		prev_version=$current_version
+		current_version+="."
+	done
 
-	if [[ $dist_prev < $dist_next ]]; then
-		;
-	else
-		;
-	fi
+	local last_child=$(git branch --list "${USERNAME}_v*" | grep -E ".+v${prev_version}\..*" | grep -vE ".+v${prev_version}\..+\..+" | sort -V | tail -1 | rev | cut -d '.' -f 1 | rev)
+	# echo last_child=$last_child
+	local next_child=$((last_child+1))
+	echo $prev_version.$next_child
 }
 
 new_from_scratch(){
-	git checkout $BASE
-	CHILDREN=$(git branch --list "*v*" | grep -vE ".+v[0-9]+\..*" | sed -E "s/.+_v([0-9]+)/\1/g" | sort -n | tail -1)
-	echo "${BASE}'s last children = $CHILDREN"
-	git checkout -b ${BASE}_v$((CHILDREN+1))
+	git checkout $USERNAME
+	CHILDREN=$(git branch --list "${USERNAME}_v*" | grep -vE ".+v[0-9]+\..*" | sed -E "s/.+_v([0-9]+)/\1/g" | sort -n | tail -1)
+	echo "${USERNAME}'s last children = $CHILDREN"
+	git checkout -b ${USERNAME}_v$((CHILDREN+1))
 	git commit --allow-empty -m "Initial placeholder commit"
 	xper.sh sort
 };
@@ -69,24 +85,21 @@ new_from_current(){
 		CHILDREN=$(git branch --list "$CURRENT_VERSION.*" | grep -vE "$CURRENT_VERSION\..*\..*" | sed -E "s/${CURRENT_VERSION}\.([0-9]+)/\1/g" | sort -n | tail -1)
 		echo "current last children = $CHILDREN"
 		git checkout -b ${CURRENT_VERSION}.$((CHILDREN+1))
-		git commit --allow-empty -m "[as initial placeholder commit]"
+		xper_ctx.sh reference "${CURRENT_VERSION}"
+		xper_save.sh "[as initial placeholder commit]"
 		xper.sh sort
 	else
+		# echo owner!=user
 		local owner_version=$(xper_version.sh 0)
-		local user_versions=($(ls $PROJ_DIR/.git/refs/heads | grep "$USERNAME*" | rev | cut -d 'v' -f 1 -s | rev))
-
-		version_prev=0
-		for ((i=1; i<${#user_versions[@]}; ++i)); do
-			local user_version=${user_versions[i]}
-			if [[ $user_version > $owner_version ]]; then
-				new_version=$(pick_new_version $owner_version $version_prev $user_version)
-				git checkout -b ${USERNAME}_v${new_version}
-				git commit --allow-empty -m "[as initial placehold commit]"
-				xper.sort
-				break
-			fi
-			version_prev=$user_version
-		done
+		# echo owner_version=$owner_version
+		# echo finding new version...
+		# pick_new_version $owner_version
+		local new_version=$(pick_new_version "$owner_version")
+		echo "new version = $new_version"
+		git checkout -b ${USERNAME}_v${new_version}
+		xper_ctx.sh reference "${CURRENT_VERSION}"
+		xper_save.sh "[as initial placeholder commit]"
+		xper.sh sort
 	fi
 };
 
@@ -97,7 +110,7 @@ diff=$(xper_diff.sh $PARENT_VERSION)
 if [[ $SCRATCH -eq 1 || $PARENT_VERSION == "" ]]; then
 	new_from_scratch
 	sed "s/tag=.*/tag=$TAG/g" .xper > .xper.tmp && mv .xper.tmp .xper
-elif [[ $diff != "" || $YES -eq 1 ]]; then
+elif [[ $diff != "" || $YES -eq 1 || $OWNER != $USERNAME ]]; then
 	new_from_current
 	sed "s/tag=.*/tag=$TAG/g" .xper > .xper.tmp && mv .xper.tmp .xper
 else

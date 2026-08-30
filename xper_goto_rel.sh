@@ -29,7 +29,7 @@ versions=($(cat .git/refs/index))
 target_version=$CURRENT_VERSION
 
 if [[ $GLOBAL -eq 0 ]]; then
-	versions=($(cat .git/refs/index | grep -E $include | grep "$USER*"))
+	versions=($(cat .git/refs/index | grep -E $include | grep -E "$USER.*"))
 fi
 
 echo versions=${#versions[@]}

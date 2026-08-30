@@ -1,7 +1,7 @@
 #!/bin/bash
 
-CURRENT_VERSION=$(git branch --show-current)
-USERNAME=$(echo $CURRENT_VERSION | sed -E "s/(.+)_v.+/\1/g")
+CURRENT_VERSION=$(xper_version.sh 1)
+USERNAME=$(xper_user.sh)
 
 if [[ $CURRENT_VERSION == $USERNAME || $CURRENT_VERSION == "main" ]]; then
 	exit 0
