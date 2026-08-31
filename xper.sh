@@ -282,10 +282,16 @@ case $CMD in
 		xper_delete.sh
 		;;
 	update)
-		xper_update.sh "$FLAG_ACQUIRE" "$FLAG_GLOBAL"
+		xper_update.sh "$FLAG_GLOBAL"
 		;;
 	backup)
-		xper_backup.sh "$FLAG_RELEASE"
+		xper_backup.sh "$FLAG_GLOBAL"
+		;;
+	acquire)
+		xper_acquire.sh
+		;;
+	release)
+		xper_release.sh
 		;;
 	finish)
 		xper_finish.sh

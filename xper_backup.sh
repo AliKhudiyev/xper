@@ -1,7 +1,7 @@
 #!/bin/bash
-# usage: xper_backup.sh FLAG_RELEASE
+# usage: xper_backup.sh FLAG_GLOBAL
 
-RELEASE=$1
+GLOBAL=$1
 
 PUSHLOCKED=$(xper_locked.sh)
 if [[ $PUSHLOCKED -eq 1 ]]; then
@@ -41,4 +41,5 @@ failed=$?
 
 if [[ $failed -ne 0 ]]; then
 	echo "[xper_backup] failed"
+	exit 1
 fi

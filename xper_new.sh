@@ -129,9 +129,10 @@ if [[ $success -eq 1 ]]; then
 	if [[ $NORMALMODE -eq 0 ]]; then
 		xper_ctx.sh mode sequential
 		if [[ $ACQUIRE -eq 1 ]]; then
-			xper.sh update --acquire
+			xper.sh acquire
 		else
 			xper.sh update
+			xper.sh finish
 		fi
 	fi
 fi

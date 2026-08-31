@@ -26,16 +26,18 @@ $ xper backup
 - ~Bug fix: need to `git add` and `git commit` before sensitive `xper ...` operations.~
 - ~Add `xper sort [--by <log-field>]` command.~
 - Write tests.
-- Add `--acquire|--release` semantics to `update|backup` functions.
-    - `xper backup --acquire` can b edone only on a newly created branch (ie, no diff with its parent), and it must be done by the owner initially. This makes the owner to acquire the key automatically upon the creation of the new branch.
-        - Make `xper new --acquire` run `xper backup --acquire` semantics behind the scenes. Maybe get rid of `--acquire` semantics for `xper backup`.
-    - `xper backup` can be done by person holding the key, and this operation will not release they key from the key holder.
-    `xper backup --release` can be done by person holding they key, and this operation will take the write access away from the current key holder/user.
-    - `xper update --acquire` runs `xper update` but unlocks the branch (ie, gives write access) if the key can be acquired. A key can be acquired only when the person with the key does `xper backup --release` on it before this update operation.
-- `xper update` should lock the branch (ie, removes write access) whose owner doesn't match the local user, unless the branch is in sequential mode (ie, original owner has run `xper backup --release` on it).
+- ~[no need; they are different functionality] Add `--acquire|--release` semantics to `update|backup` functions.~
+    - ~[no need] `xper backup --acquire` can be done only on a newly created branch (ie, no diff with its parent), and it must be done by the owner initially. This makes the owner to acquire the key automatically upon the creation of the new branch.~
+        - ~Make `xper new --acquire` run `xper backup --acquire` semantics behind the scenes. Maybe get rid of `--acquire` semantics for `xper backup`.~
+            - ~`xper new --sequential` creates a new sequential version. Optional `--acquire` option immediately runs `xper acquire` after `xper new --sequential`. `--acquire` option in `xper new` (sub)command won't do anything without the `--sequential` flag present.~
+    - ~`xper backup` can be done by person holding the key, and this operation will not release they key from the key holder. `xper backup --release` can be done by person holding they key, and this operation will take the write access away from the current key holder/user.~
+        - ~`xper release` works only in "sequential" mode; it releases the key and locks the version. get rid of `xper backup --release`.~
+    - ~`xper update --acquire` runs `xper update` but unlocks the branch (ie, gives write access) if the key can be acquired. A key can be acquired only when the person with the key does `xper backup --release` on it before this update operation.~
+        - ~`xper acquire` runs only in "sequential" mode; it attempts to acquire the key, and if it gets the key (status of ctx:locked and git push with new ctx:locked=1) then the version is unlocked. get rid of `exper update --acquire` option.~
+- ~`xper update` should lock the branch (ie, removes write access) whose owner doesn't match the local user, unless the branch is in sequential mode (ie, original owner has run `xper backup --release` on it).~
 - ~`xper new` must create `LOCALUSER_vXY` when performed on `OWNER_vXX` by branching from owner's version and giving write accesses back. `dist(XX, XY)` must be as minimum as possible. `reference(LOCALUSER_vXY)=OWNER_vXX`.~
 - ~`xper delete` shouldn't do anything on branches not owned by the local user.~
-- Test and fix `--global` and `--user` options for all (sub)commands.
+- ~Test and fix `--global` and `--user` options for all (sub)commands.~
 - ~Implement `xper sort --only-leaf` that keeps only leaf nodes in the index file after sorting. A node `vXY` is leaf iff there doesn't exist a node `vXYZ` for any `Z`.~
     - ~Implement `xper index [-c|--clear]` to clear index file completely.~
     - ~Implement `xper index [-a|--add] [<version>]]` to add the version (current version by default) to the index file.~
