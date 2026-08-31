@@ -6,8 +6,8 @@ CURRENT_VERSION=$(xper_version.sh 1)
 ROOT_DIR=$(xper_rootdir.sh)
 
 PROJ_DIR=$ROOT_DIR
-HEADS_DIR=$ROOT_DIR/.git/refs/heads
-INDEX_FP=$ROOT_DIR/.git/refs/index
+HEADS_DIR=$ROOT_DIR/.heads
+INDEX_FP=$ROOT_DIR/.index
 
 SORTBY=$1
 GLOBAL=$2

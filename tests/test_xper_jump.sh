@@ -7,6 +7,7 @@ setup(){
 	xper.sh init
 	USERNAME=$(xper_user.sh)
 	ROOT_DIR=$REPO_DIR
+	INDEX_FP=$REPO_DIR/.index
 
 	xper.sh logfile --path log.txt
 	echo "integer:42" > log.txt
@@ -53,9 +54,12 @@ teardown(){
 
 test_version(){
 	EXPECTED=$1
+	MESSAGE=$2
 	CURRENT=$(xper_version.sh 0)
 	if [[ $CURRENT != $EXPECTED ]]; then
 		echo "[test_xper_jump]: version=$CURRENT (expected $EXPECTED)"
+		echo $MESSAGE
+		cat $INDEX_FP
 		return 1
 	fi
 	return 0
@@ -85,7 +89,7 @@ failed=$(($failed+$?))
 
 # should jump to version 3
 xper.sh jump -f 1
-test_version 3
+test_version 3 "v2.1.1 -f 1"
 failed=$(($failed+$?))
 
 # should jump to version 1
@@ -117,17 +121,17 @@ failed=$(($failed+$?))
 
 # should jump to version 3
 xper.sh jump -b 2 --wrap
-test_version 3
+test_version 3 "v1 -b 2 --wrap"
 failed=$(($failed+$?))
 
 # should stay at version 3
 xper.sh jump -b 6 --wrap
-test_version 3
+test_version 3 "v3 -b 6 --wrap"
 failed=$(($failed+$?))
 
 # should stay at version 3
 xper.sh jump -f 6 --wrap
-test_version 3
+test_version 3 "v3 -b 6 --wrap"
 failed=$(($failed+$?))
 
 

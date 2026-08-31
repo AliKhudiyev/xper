@@ -13,7 +13,7 @@ VERSION_TARGET=$8
 echo version_source=$VERSION_SOURCE version_target=$VERSION_TARGET
 
 ROOT_DIR=$(xper_rootdir.sh)
-INDEX_FP="${ROOT_DIR}/.git/refs/index"
+INDEX_FP="${ROOT_DIR}/.index"
 
 if [[ $CLEAR -eq 1 ]]; then
 	echo "" > $INDEX_FP

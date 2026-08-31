@@ -7,6 +7,7 @@ setup(){
 	xper.sh init
 	USERNAME=$(xper_user.sh)
 	ROOT_DIR=$REPO_DIR
+	INDEX_FP=$ROOT_DIR/.index
 
 	xper.sh logfile --path log.txt
 	echo "integer:42" > log.txt
@@ -55,7 +56,7 @@ teardown(){
 test_version_sort(){
 	xper.sh sort
 
-	lines=$(cat $ROOT_DIR/.git/refs/index | wc -l | tr -d ' ')
+	lines=$(cat $INDEX_FP | wc -l | tr -d ' ')
 	branches=$(xper_version_count.sh)
 	i=1
 
@@ -64,7 +65,7 @@ test_version_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -72,7 +73,7 @@ test_version_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP| tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -80,7 +81,7 @@ test_version_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -88,7 +89,7 @@ test_version_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -96,7 +97,7 @@ test_version_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2.1.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -104,7 +105,7 @@ test_version_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v3
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -112,7 +113,7 @@ test_version_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v3.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -126,7 +127,7 @@ test_version_sort(){
 test_numerical_log_sort(){
 	xper.sh sort --by "integer"
 
-	lines=$(cat $ROOT_DIR/.git/refs/index | wc -l | tr -d ' ')
+	lines=$(cat $INDEX_FP | wc -l | tr -d ' ')
 	branches=$(xper_version_count.sh)
 	i=1
 
@@ -135,7 +136,7 @@ test_numerical_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -143,7 +144,7 @@ test_numerical_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v3.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -151,7 +152,7 @@ test_numerical_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -159,7 +160,7 @@ test_numerical_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2.1.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -167,7 +168,7 @@ test_numerical_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v3
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -175,7 +176,7 @@ test_numerical_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -183,7 +184,7 @@ test_numerical_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -198,7 +199,7 @@ test_numerical_log_sort(){
 test_recursive_log_sort(){
 	xper.sh sort --by "vector"
 
-	lines=$(cat $ROOT_DIR/.git/refs/index | wc -l | tr -d ' ')
+	lines=$(cat $INDEX_FP | wc -l | tr -d ' ')
 	branches=$(xper_version_count.sh)
 	i=1
 
@@ -207,7 +208,7 @@ test_recursive_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -215,7 +216,7 @@ test_recursive_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v3
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -223,7 +224,7 @@ test_recursive_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -231,7 +232,7 @@ test_recursive_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v3.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -239,7 +240,7 @@ test_recursive_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -247,7 +248,7 @@ test_recursive_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then
@@ -255,7 +256,7 @@ test_recursive_log_sort(){
 		return 1
 	fi
 
-	current=$(head -$i $ROOT_DIR/.git/refs/index | tail -1 | cut -d '|' -f 1)
+	current=$(head -$i $INDEX_FP | tail -1 | cut -d '|' -f 1)
 	expected=${USERNAME}_v2.1.1
 	i=$(($i+1))
 	if [[ $current != $expected ]]; then

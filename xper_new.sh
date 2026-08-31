@@ -1,9 +1,11 @@
 #!/bin/bash
-# usage: xper_init FLAG_SCRATCH STR_TAG FLAG_YES
+# usage: xper_init FLAG_SCRATCH STR_TAG FLAG_YES FLAG_NORMALMODE FLAG_ACQUIRE
 
 SCRATCH=$1
 TAG=$2
 YES=$3
+NORMALMODE=$4
+ACQUIRE=$5
 
 USERNAME=$(xper_user.sh)
 OWNER=$(xper_owner.sh)
@@ -12,7 +14,7 @@ PARENT_VERSION=$(xper.sh parent)
 ROOT_DIR=$(xper_rootdir.sh)
 
 PROJ_DIR=$ROOT_DIR
-INDEX_FP="$ROOT_DIR/.git/refs/index"
+INDEX_FP="$ROOT_DIR/.index"
 
 echo "scratch=$SCRATCH tag=$TAG yes=$YES"
 echo "username is $USERNAME"
@@ -97,22 +99,39 @@ new_from_current(){
 		local new_version=$(pick_new_version "$owner_version")
 		echo "new version = $new_version"
 		git checkout -b ${USERNAME}_v${new_version}
+		xper.sh modify
 		xper_ctx.sh reference "${CURRENT_VERSION}"
 		xper_save.sh "[as initial placeholder commit]"
 		xper.sh sort
 	fi
 };
 
-xper_save.sh "before branching"
 diff=$(xper_diff.sh $PARENT_VERSION)
+success=0
 # echo diff=$diff
 
 if [[ $SCRATCH -eq 1 || $PARENT_VERSION == "" ]]; then
+	xper_save.sh "before branching"
 	new_from_scratch
-	sed "s/tag=.*/tag=$TAG/g" .xper > .xper.tmp && mv .xper.tmp .xper
+	success=1
 elif [[ $diff != "" || $YES -eq 1 || $OWNER != $USERNAME ]]; then
+	xper_save.sh "before branching"
 	new_from_current
-	sed "s/tag=.*/tag=$TAG/g" .xper > .xper.tmp && mv .xper.tmp .xper
+	success=1
 else
 	echo "[xper_new] did not create a new version"
+fi
+
+if [[ $success -eq 1 ]]; then
+	xper_ctx.sh tag $TAG
+	xper.sh modify
+	echo "[xper_new] mode processing..."
+	if [[ $NORMALMODE -eq 0 ]]; then
+		xper_ctx.sh mode sequential
+		if [[ $ACQUIRE -eq 1 ]]; then
+			xper.sh update --acquire
+		else
+			xper.sh update
+		fi
+	fi
 fi

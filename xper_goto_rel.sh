@@ -4,11 +4,14 @@
 GLOBAL=$1
 WRAP=$2
 FORWARD=$3
+STEPS=$4
 USER=$5
 
 USERNAME=$(xper_user.sh)
 CURRENT_VERSION=$(xper_version.sh 1)
 PROJ_DIR=$(xper_rootdir.sh)
+ROOT_DIR=$(xper_rootdir.sh)
+INDEX_FP=$ROOT_DIR/.index
 
 include=".+_v[0-9].*"
 if [[ $USER == "" ]]; then
@@ -18,35 +21,46 @@ fi
 # 	include=".+"
 # fi
 
-# versions=($(ls .git/refs/heads | grep -v "main" | grep -E $include | sort))
-if [[ ! -e ".git/refs/index" ]]; then
+if [[ ! -e $INDEX_FP ]]; then
 	xper_sort.sh
 else
 	echo index already exists
 fi
 
-versions=($(cat .git/refs/index))
-target_version=$CURRENT_VERSION
+versions=($(cat $INDEX_FP))
+# target_version=$CURRENT_VERSION
+target_version=$(echo ${versions[@]: -1} | cut -d '|' -f 1)
+echo default target_version=$target_version
 
 if [[ $GLOBAL -eq 0 ]]; then
-	versions=($(cat .git/refs/index | grep -E $include | grep -E "$USER.*"))
+	# versions=($(cat $INDEX_FP | grep -E "$USER.*"))
+	versions=($(cat $INDEX_FP | grep -E $include | grep -E "$USER.*"))
+	# uncomment line above (with $include) if you want stricter USERNAME matching
 fi
 
 echo versions=${#versions[@]}
+echo ${versions[@]}
 if [[ ${#versions[@]} -eq 0 ]]; then
 	echo "[xper_goto] no other version exists"
 	exit 0
 fi
 
-STEPS=$(($4 % ${#versions[@]}))
+[[ $WRAP -eq 1 ]] && STEPS=$(($4 % ${#versions[@]}))
 echo $STEPS steps
 
 echo version count is ${#versions[@]}
 
+get_version_number(){
+	echo $1 | rev | cut -d '_' -f 1 | rev
+}
+
 for i in ${!versions[@]}; do
 	version=$(echo ${versions[i]} | cut -d '|' -f 1)
-	echo $CURRENT_VERSION vs ${version}
-	if [[ "${CURRENT_VERSION}" == "${version}" ]]; then
+	# version=$(get_version_number ${version})
+	# current=$(get_version_number $CURRENT_VERSION)
+	current=$CURRENT_VERSION
+	echo current=$current and version=${version}
+	if [[ "${current}" == "${version}" || $((i+1)) -eq ${#versions[@]} ]]; then
 		ti=$(($i+$STEPS))
 		if [[ $FORWARD -eq 0 ]]; then
 			ti=$(($i-$STEPS))
@@ -75,7 +89,10 @@ echo target_version=$target_version
 
 if [[ $target_version != $CURRENT_VERSION ]]; then
 	git add $PROJ_DIR && git commit -m "commit by $USERNAME before jump"
-	git checkout ${target_version}
+	user=$(echo $target_version | rev | cut -d '_' -f 2 | rev)
+	version=$(get_version_number $target_version)
+	xper.sh jump ${version} -u $user
+	# git checkout ${target_version}
 else
 	echo "[xper_goto] already on the right version"
 fi

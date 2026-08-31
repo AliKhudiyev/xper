@@ -1,4 +1,13 @@
 #!/bin/bash
+# usage: xper_backup.sh FLAG_RELEASE
+
+RELEASE=$1
+
+PUSHLOCKED=$(xper_locked.sh)
+if [[ $PUSHLOCKED -eq 1 ]]; then
+	echo "[xper_backup] you're locked"
+	exit 0
+fi
 
 xper.sh update
 failed=$?
@@ -9,37 +18,27 @@ if [[ $failed -ne 0 ]]; then
 fi
 
 GIT_REPO=$(git remote -v)
-USERNAME=$(git config --global user.name | tr -d ' ')
-PROJ_DIR=$(git rev-parse --show-toplevel)
+USERNAME=$(xper_user.sh)
+BRANCH=$(xper_version.sh 1)
+PROJ_DIR=$(xper_rootdir.sh)
 
 if [[ $GIT_REPO == "" ]]; then
 	echo "no remote repository was found"
 	exit 1
 fi
 
-USER=""
-MODE="normal"
-LOCKED=0
-TAG=""
-
-cat .xper | while IFS= read -r line; do
-	if [[ $line == "user=*" ]]; then
-		USER=$(echo $line | cut -d '=' -f2)
-	elif [[ $line == "mode=*" ]]; then
-		MODE=$(echo $line | cut -d '=' -f2)
-	elif [[ $line == "locked=*" ]]; then
-		LOCKED=$(echo $line | cut -d '=' -f2)
-	elif [[ $line == "tag=*" ]]; then
-		TAG=$(echo $line | cut -d '=' -f2)
-	fi
-done
+USER=$(xper_user.sh)
+MODE=$(xper_ctx.sh mode)
+LOCKED=$(xper_ctx.sh locked)
+TAG=$(xper_ctx.sh tag)
 
 echo user=$USER mode=$MODE locked=$LOCKED tag=$TAG
 
-xper.sh new
-git add $PROJ_DIR && git commit -m "commit by $USERNAME" && git push
+xper_save.sh "before backup"
+git push -u origin $BRANCH
+# git add $PROJ_DIR && git commit -m "commit by $USERNAME" && git push -u origin $BRANCH
 failed=$?
 
 if [[ $failed -ne 0 ]]; then
-	echo failed
+	echo "[xper_backup] failed"
 fi

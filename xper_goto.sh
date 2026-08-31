@@ -17,9 +17,18 @@ if [[ $VERSION == "" ]]; then
 fi
 
 echo version=$VERSION first=$FIRST last=$LAST user=$USER
-xper_save.sh "before jump"
-# git add $PROJ_DIR && git commit -m "commit by $USERNAME before jump"
+# xper_save.sh "before jump"
+git add $PROJ_DIR && git commit -m "commit by $USERNAME before jump"
+xper.sh modify # if you delete this, git checkout on the next line will give error and incorrectly change the reference of the target_node
 git checkout ${TARGET_NODE}
+
+OWNER=$(xper_owner.sh)
+LOCKED=$(xper_ctx.sh locked)
+if [[ $OWNER != $USERNAME ]]; then
+	xper.sh finish
+else
+	xper.sh modify
+fi
 
 if [[ $FIRST -eq 1 ]]; then
 	xper.sh goto -f 1

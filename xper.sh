@@ -87,7 +87,7 @@ FLAG_SCRATCH=0
 FLAG_YES=0
 FLAG_WRAP=0
 FLAG_GLOBAL=0
-FLAG_NORMAL_MODE=0
+FLAG_NORMAL_MODE=1
 FLAG_FIRST=0
 FLAG_LAST=0
 FLAG_FILEPATH=0
@@ -98,6 +98,8 @@ FLAG_AFTER=0
 FLAG_BEFORE=0
 FLAG_SWAP=0
 FLAG_ONLYLEAF=0
+FLAG_ACQUIRE=0
+FLAG_RELEASE=0
 
 OPTARG_TAG=""
 OPTARG_USER=$(xper_user.sh)
@@ -157,11 +159,11 @@ while [[ $# -gt 0 ]]; do
 			fi
 			shift
 			;;
-		-n|--normal)
+		-nl|--normal)
 			FLAG_NORMAL_MODE=1
 			shift
 			;;
-		-s|--sequential)
+		-sl|--sequential)
 			FLAG_NORMAL_MODE=0
 			shift
 			;;
@@ -233,6 +235,16 @@ while [[ $# -gt 0 ]]; do
 			FLAG_ONLYLEAF=1
 			shift
 			;;
+		--acquire)
+			FLAG_ACQUIRE=1
+			FLAG_RELEASE=0
+			shift
+			;;
+		--release)
+			FLAG_RELEASE=1
+			FLAG_ACQUIRE=0
+			shift
+			;;
 		--first)
 			FLAG_FIRST=1
 			;;
@@ -260,19 +272,20 @@ case $CMD in
 		;;
 	new)
 		echo flgyes=$FLAG_YES
-		xper_new.sh $FLAG_SCRATCH "$OPTARG_TAG" $FLAG_YES
+		xper_new.sh "$FLAG_SCRATCH" "$OPTARG_TAG" "$FLAG_YES" "$FLAG_NORMAL_MODE" "$FLAG_ACQUIRE"
 		;;
 	tag)
-		xper_new.sh $OPTARG_TAG
+		echo "[xper] use xper_ctx.sh tag [<your-tag>]"
+		# xper_new.sh "$OPTARG_TAG"
 		;;
 	delete)
 		xper_delete.sh
 		;;
 	update)
-		xper_update.sh
+		xper_update.sh "$FLAG_ACQUIRE" "$FLAG_GLOBAL"
 		;;
 	backup)
-		xper_backup.sh
+		xper_backup.sh "$FLAG_RELEASE"
 		;;
 	finish)
 		xper_finish.sh

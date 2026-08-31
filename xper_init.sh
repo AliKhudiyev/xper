@@ -9,3 +9,4 @@ git init -b $USERNAME && git commit --allow-empty -m "Initial placeholder commit
 
 printf "user=${USERNAME}\nmode=normal\nlocked=0\ntag=\nlog=\n" > .xper
 printf "owner=${USERNAME}\nreference=" >> .xper
+printf ".heads\n.heads_filtered\n.index\n" >> .gitignore
