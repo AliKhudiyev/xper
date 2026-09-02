@@ -1,1 +1,97 @@
 #/bin/bash
+
+setup(){
+	cd $REPO_DIR
+	source ../utils.sh
+
+	xper.sh init
+	USERNAME=$(xper_user.sh)
+	ROOT_DIR=$REPO_DIR
+	INDEX_FP=$ROOT_DIR/.index
+
+	xper.sh new    # v1
+	xper.sh new -s # v2
+	xper.sh new -y # v2.1
+	xper.sh new -y # v2.1.1
+	xper.sh new -s # v3
+	xper.sh new -y # v3.1
+
+	# other user's versions
+	git checkout -b USER
+	printf "user=USER\nmode=normal\nlocked=0\ntag=\nlog=\nowner=USER\nreference=\n" > .xper
+	printf ".heads\n.heads_filtered\n.index\n" > .gitignore
+	git add . && git commit -m 'initial commit by USER'
+	git checkout -b USER_v2
+	git checkout -b USER_v2.1
+	git checkout -b USER_v2.1.1
+	git checkout -b USER_v2.1.2
+	git checkout -b USER_v2.1.1.4
+	git checkout -b USER_v2.1.2.4
+	git checkout -b USER_v2.3
+	git checkout -b USER_v2.3.4.1
+	git checkout -b USER_v7
+
+	git checkout $USERNAME
+}
+
+teardown(){
+	xper.sh modify --yes
+	cd $REPO_DIR/..
+	find $REPO_DIR -mindepth 1 -delete
+}
+
+test_version(){
+	EXPECTED="$1"
+	CURRENT=$(xper_version.sh 0)
+	MESSAGE="$2"
+	if [[ $CURRENT != $EXPECTED ]]; then
+		echo "[test_xper_new]: version=$CURRENT (expected $EXPECTED)"
+		echo "$MESSAGE"
+		exit 1
+	fi
+	return 0
+}
+
+test_diff(){
+	V1="$1"
+	V2="$2"
+	EXPECTED="$3"
+	CURRENT=$(git diff $V1 $V2 -- . ':!.xper')
+	MESSAGE="$4"
+	if [[ $CURRENT != $EXPECTED ]]; then
+		echo "[test_xper_diff]: diff=[$CURRENT] (expected [$EXPECTED])"
+		echo "$MESSAGE"
+		exit 1
+	fi
+	return 0
+}
+
+
+# = = = test begins = = = #
+setup
+failed=0
+
+diff=$(xper.sh diff USER_v7 USER_v2)
+test_diff USER_v7 USER_v2 "$diff" "diff USER_v7 USER_v2"
+failed=$(($failed+$?))
+
+xper.sh jump v2 -u USER
+diff=$(xper.sh diff USER_v7)
+test_diff USER_v7 USER_v2 "$diff" "diff USER_v7"
+failed=$(($failed+$?))
+
+xper.sh sort -g -y
+xper.sh jump --first
+diff=$(xper.sh diff jump --first -u USER)
+test_diff ${USERNAME}_v1 USER_v2.1 "$diff" "diff jump --first -u USER"
+failed=$(($failed+$?))
+
+
+if [[ $failed -eq 0 ]]; then
+	echo "[test_xper_diff]: passed"
+	teardown
+	exit 0
+else
+	echo "[test_xper_diff]: failed"
+	exit 1
+fi

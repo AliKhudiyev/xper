@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage: xper_sort STR_SORTBY FLAG_GLOBAL STR_USER FLAG_ONLYLEAF
+# usage: xper_sort STR_SORTBY FLAG_GLOBAL STR_USER FLAG_ONLYLEAF FLAG_YES
 
 USERNAME=$(xper_user.sh)
 CURRENT_VERSION=$(xper_version.sh 1)
@@ -8,12 +8,24 @@ ROOT_DIR=$(xper_rootdir.sh)
 PROJ_DIR=$ROOT_DIR
 HEADS_DIR=$ROOT_DIR/.heads
 INDEX_FP=$ROOT_DIR/.index
+PUSHLOCKED=$(xper_locked.sh)
 
 SORTBY=$1
 GLOBAL=$2
 USER=$3; [[ $USER == "" ]] && USER=$USERNAME
 ONLYLEAF=$4
+YES=$5
 RECURSIVE_SORT=0
+
+if [[ $YES -eq 1 ]]; then
+	chmod u+w $ROOT_DIR/.heads_filtered
+	chmod u+w $ROOT_DIR/.index
+elif [[ $PUSHLOCKED -eq 1 ]]; then
+	chmod u-w $ROOT_DIR/.heads_filtered
+	chmod u-w $ROOT_DIR/.index
+	echo "[xper_sort] cannot alter index file without --yes flag"
+	exit 0
+fi
 
 xper_save.sh "before sorting"
 

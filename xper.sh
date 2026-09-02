@@ -159,7 +159,7 @@ while [[ $# -gt 0 ]]; do
 			shift
 			;;
 		-f|--forward)
-			echo forward option
+			# echo forward option
 			if [[ $# -ge 2 ]]; then
 				OPTARG_FORWARD_STEPS=$2
 				shift
@@ -254,9 +254,11 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--first)
 			FLAG_FIRST=1
+			shift
 			;;
 		--last)
 			FLAG_LAST=1
+			shift
 			;;
 		--by)
 			if [[ $# -ge 2 ]]; then
@@ -310,7 +312,7 @@ case $CMD in
 		FORWARD=1
 		if [[ $OPTARG_SUBCMD != "" ]]; then
 			# echo absolute jump
-			xper_goto.sh "$OPTARG_SUBCMD" "$FLAG_FIRST" "$FLAG_LAST" "$OPTARG_USER"
+			xper_goto.sh "$OPTARG_SUBCMD" "$OPTARG_USER"
 		else
 			if [[ $OPTARG_BACKWARD_STEPS -gt $OPTARG_FORWARD_STEPS ]]; then
 				FORWARD=0
@@ -319,27 +321,27 @@ case $CMD in
 				FORWARD=1
 				STEPS=$(($OPTARG_FORWARD_STEPS-$OPTARG_BACKWARD_STEPS))
 			fi
-			xper_goto_rel.sh $FLAG_GLOBAL $FLAG_WRAP $FORWARD $STEPS $OPTARG_USER
+			xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST"
 		fi
 		;;
 	diff)
 		current_version=$(git branch --show-current)
-		version=$(git branch --show-current)
+		version="$OPTARG_SUBCMD"
 		if [[ $OPTARG_SUBCMD == "jump" || $OPTARG_SUBCMD == "goto" ]]; then
-			FORWARD=1
-			if [[ $OPTARG_SUBCMD != "" ]]; then
-				xper_goto.sh "$OPTARG_SUBCMD" "$FLAG_FIRST" "$FLAG_LAST"
-			elif [[ $OPTARG_BACKWARD_STEPS -gt $OPTARG_FORWARD_STEPS ]]; then
+			if [[ $OPTARG_BACKWARD_STEPS -gt $OPTARG_FORWARD_STEPS ]]; then
 				FORWARD=0
 				STEPS=$(($OPTARG_BACKWARD_STEPS-$OPTARG_FORWARD_STEPS))
+				xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST"
 			else
 				FORWARD=1
 				STEPS=$(($OPTARG_FORWARD_STEPS-$OPTARG_BACKWARD_STEPS))
-			xper_goto_rel.sh $FLAG_GLOBAL $FLAG_WRAP $FORWARD $STEPS $OPTARG_USER
+				xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST"
 			fi
 			version=$(git branch --show-current)
+			version_num=$(echo $current_version | rev | cut -d '_' -f 1 | rev)
+			version_user=$(echo $current_version | rev | cut -d '_' -f 2 | rev)
+			xper.sh jump "$version_num" -u "$version_user"
 		fi
-		xper_goto.sh "$current_version" "$FLAG_FIRST" "$FLAG_LAST"
 		xper_diff.sh "$version"
 		;;
 	children)
@@ -355,7 +357,7 @@ case $CMD in
 		xper_owner.sh
 		;;
 	sort)
-		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER" "$FLAG_ONLYLEAF"
+		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER" "$FLAG_ONLYLEAF" "$FLAG_YES"
 		;;
 	index)
 		xper_index.sh "$FLAG_CLEAR" "$FLAG_ADD" "$FLAG_REMOVE" "$OPTARG_VERSION_SOURCE" "$FLAG_AFTER" "$FLAG_BEFORE" "$FLAG_SWAP" "$OPTARG_VERSION_TARGET"

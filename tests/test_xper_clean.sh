@@ -75,10 +75,10 @@ test_repo_clean
 failed=$(($failed+$?))
 
 if [[ $failed -eq 0 ]]; then
-	echo "[test_xper_sort]: passed"
+	echo "[test_xper_clean]: passed"
 	teardown
 	exit 0
 else
-	echo "[test_xper_sort]: failed"
+	echo "[test_xper_clean]: failed"
 	exit 1
 fi

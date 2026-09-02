@@ -48,6 +48,7 @@ setup(){
 }
 
 teardown(){
+	xper.sh modify --yes
 	cd $REPO_DIR/..
 	find $REPO_DIR -mindepth 1 -delete
 }
@@ -132,6 +133,31 @@ failed=$(($failed+$?))
 # should stay at version 3
 xper.sh jump -f 6 --wrap
 test_version 3 "v3 -b 6 --wrap"
+failed=$(($failed+$?))
+
+# sorting by version numbers
+xper.sh sort
+
+# should jump to 
+xper.sh jump --first
+test_version 1 "--first"
+failed=$(($failed+$?))
+
+# should jump to 
+xper.sh jump --last
+test_version 3.1 "--last"
+failed=$(($failed+$?))
+
+# create new version from another user
+git checkout -b USER_v7
+git checkout ${USERNAME}_v2
+
+# sort globally by version numbers
+xper.sh sort -g
+
+# should jump to 
+xper.sh jump --last -g
+test_version 7 "--last -g"
 failed=$(($failed+$?))
 
 
