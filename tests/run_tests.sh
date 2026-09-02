@@ -25,9 +25,9 @@ fi
 ./test_xper_release.sh && # 
 ./test_xper_index.sh &&   # done
 ./test_xper_jump.sh &&    # done
-./test_xper_diff.sh &&
+./test_xper_diff.sh &&    # done
 ./test_xper_sort.sh &&    # done
 ./test_xper_finish.sh &&  # done
 ./test_xper_modify.sh &&  # done
 ./test_xper_clean.sh &&   # done
-./test_xper_aux.sh        # 
+./test_xper_aux.sh        # owner, user, ref, ctx, logfile, parent, children, remote, track, untrack

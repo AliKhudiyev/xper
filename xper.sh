@@ -63,6 +63,9 @@ print_help(){
 
 	print_command_info "init" ":" "initializes:"
 	print_command_info "new" "[-s|--scratch]:[-t|--tag <tag>]:[-y|--yes]" "duplicates the current experiment into a new branch/version:(gives it a new tag):(forces creation even without any diff with parent version)"
+	print_command_info "remote" "[--add <REPO-URL>]:" "sets remote repository:"
+	print_command_info "track" "<filepath>:" "track a file or a folder completely:"
+	print_command_info "untrack" "<filepath>:" "untrack a file or a folder completely:"
 	print_command_info "tag" "[<new_tag>]" "show tag (if no new_tag) or rename (if new_tag is provided)"
 	print_command_info "del|delete" ":" "delete current version and all of its subversions recursively:"
 	print_command_info "update" ":" "pull lates changes from remote repository:"
@@ -271,6 +274,7 @@ while [[ $# -gt 0 ]]; do
 			;;
 		*)
 			OPTARG_SUBCMD=$1
+			OPTARG_FILEPATH=$1
 			shift
 			;;
 	esac
@@ -283,6 +287,12 @@ case $CMD in
 		;;
 	remote)
 		xper_remote.sh "$FLAG_ADD" "$OPTARG_REMOTE_URL"
+		;;
+	track)
+		xper_track.sh "$OPTARG_FILEPATH"
+		;;
+	untrack)
+		xper_untrack.sh "$OPTARG_FILEPATH"
 		;;
 	new)
 		# echo flgyes=$FLAG_YES
