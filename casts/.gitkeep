@@ -1,0 +1,6 @@
+Recordings go here.
+
+  asciinema rec casts/tree.cast
+
+The page looks for tree.cast, sort.cast and finish.cast. Each demo shows a
+static transcript until its file exists, then swaps in the player by itself.

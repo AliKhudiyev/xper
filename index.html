@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>xper — experiment tracking that remembers why</title>
+<meta name="description" content="xper is git, specialized for research iteration. Every experiment's name is its ancestry, so you can read the lineage without looking anything up. A dependency-free Bash CLI.">
+<meta property="og:title" content="xper — experiment tracking that remembers why">
+<meta property="og:description" content="git, specialized for research iteration. Every experiment's name is its ancestry.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88' font-family='monospace'>&#9679;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/asciinema-player.css">
+<script>
+  /* set theme before first paint so there is no flash */
+  try {
+    var t = localStorage.getItem("xper-theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#top">xper</a>
+    <nav class="top-nav">
+      <a href="#tree" class="hide-sm">How it works</a>
+      <a href="#more" class="hide-sm">Features</a>
+      <a href="#reference">Reference</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/AliKhudiyev/xper">GitHub</a>
+      <button class="theme-btn" id="theme-btn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.8v2.4M12 19.8v2.4M4.4 4.4l1.7 1.7M17.9 17.9l1.7 1.7M1.8 12h2.4M19.8 12h2.4M4.4 19.6l1.7-1.7M17.9 6.1l1.7-1.7"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap">
+    <h1>xper<span class="cursor" aria-hidden="true"></span></h1>
+    <p class="tagline">Experiment tracking that remembers <em>why</em>, not just what.</p>
+    <p class="hero-sub">
+      It&rsquo;s git, specialized for research iteration. Every experiment&rsquo;s name is its
+      ancestry &mdash; <strong>v1.1.2</strong> is the second thing you tried on top of
+      <strong>v1.1</strong>, which came from <strong>v1</strong>. You can read the lineage
+      without looking anything up.
+    </p>
+
+    <div class="btn-row">
+      <a class="btn btn-primary" href="#install">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 11l5 5 5-5M4 20h16"/></svg>
+        Install
+      </a>
+      <a class="btn btn-ghost" href="https://github.com/AliKhudiyev/xper">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .6a11.4 11.4 0 0 0-3.6 22.2c.6.1.8-.2.8-.5v-2c-3.2.7-3.9-1.400-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .3.2.6.8.5A11.4 11.4 0 0 0 12 .6z"/></svg>
+        GitHub
+      </a>
+    </div>
+
+    <div class="code with-copy" style="max-width:620px">
+      <button class="copy" type="button">copy</button>
+<pre><span class="c-prompt">$</span> git clone https://github.com/AliKhudiyev/xper.git ~/.xper
+<span class="c-prompt">$</span> ln -s ~/.xper/xper.sh ~/.xper/xper
+<span class="c-prompt">$</span> echo <span class="c-str">'export PATH="$HOME/.xper:$PATH"'</span> &gt;&gt; ~/.zshrc &amp;&amp; exec zsh</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 01 · PROBLEM ============ -->
+<section id="problem">
+  <div class="wrap">
+    <p class="sec-label">01 &mdash; the problem</p>
+    <div class="note">
+      <div class="kicker">Three weeks later</div>
+      <p>
+        You ran 40 experiments to get one paper. Later you find a good number in an old log and
+        you can&rsquo;t reproduce it, because the code that produced it has been overwritten a
+        dozen times since.
+      </p>
+      <p><strong>The idea survived. The state that made it work didn&rsquo;t.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 · THE TREE ============ -->
+<section id="tree">
+  <div class="wrap">
+    <p class="sec-label">02 &mdash; how it works</p>
+    <h2 class="sec-title">The tree is the point</h2>
+    <p class="sec-lede">
+      Every version is a git branch, and its number is its address. Step through a real session
+      and watch the tree it builds.
+    </p>
+
+    <figure class="fig" id="tree-fig">
+      <div class="tree-grid">
+        <div>
+          <ol class="steps" id="tree-steps" aria-label="Command sequence"></ol>
+          <div class="tree-bar">
+            <button class="replay" id="tree-replay" type="button">&#9654; replay</button>
+            <span class="hint">click any line to jump to that point</span>
+          </div>
+        </div>
+
+        <div class="tree-stage">
+          <div class="tree-scroll">
+            <svg class="tree-svg" id="tree-svg" viewBox="0 0 560 336" role="img"
+                 aria-label="A version tree: base branches to v1, which leads to v1.1, which forks into v1.1.1 and v1.1.2. A separate dashed branch from base leads to v2.">
+
+              <!-- edges (drawn under nodes) -->
+              <path class="edge" data-to="v1"   data-on="0" d="M70,165 C130,165 130,100 190,100"/>
+              <path class="edge" data-to="v11"  data-on="0" d="M190,100 L320,100"/>
+              <path class="edge" data-to="v111" data-on="0" d="M320,100 C395,100 395,48 470,48"/>
+              <path class="edge" data-to="v112" data-on="0" d="M320,100 C395,100 395,150 470,150"/>
+              <path class="edge scratch" data-to="v2" data-on="0" d="M70,165 C130,165 130,258 190,258"/>
+
+              <!-- nodes -->
+              <g class="node" data-id="base" data-on="0" data-active="0" transform="translate(70,165)">
+                <circle class="halo" r="14"/><circle r="6.5"/>
+                <text y="-19">base</text>
+              </g>
+              <g class="node" data-id="v1" data-on="0" data-active="0" transform="translate(190,100)">
+                <circle class="halo" r="14"/><circle r="6.5"/>
+                <text y="-19">v1</text>
+                <text class="n-tag" y="27">#MLP</text>
+              </g>
+              <g class="node" data-id="v11" data-on="0" data-active="0" transform="translate(320,100)">
+                <circle class="halo" r="14"/><circle r="6.5"/>
+                <text y="-19">v1.1</text>
+              </g>
+              <g class="node" data-id="v111" data-on="0" data-active="0" transform="translate(470,48)">
+                <circle class="halo" r="14"/><circle r="6.5"/>
+                <text y="-19">v1.1.1</text>
+              </g>
+              <g class="node" data-id="v112" data-on="0" data-active="0" transform="translate(470,150)">
+                <circle class="halo" r="14"/><circle r="6.5"/>
+                <text y="27">v1.1.2</text>
+              </g>
+              <g class="node" data-id="v2" data-on="0" data-active="0" transform="translate(190,258)">
+                <circle class="halo" r="14"/><circle r="6.5"/>
+                <text y="27">v2</text>
+              </g>
+
+              <!-- legend -->
+              <g class="legend" aria-hidden="true">
+                <path d="M40,314 L70,314" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-dasharray="3 5" opacity=".35"/>
+                <text x="78" y="318" font-family="IBM Plex Mono, monospace" font-size="11"
+                      fill="currentColor" opacity=".45">--scratch: a fresh start from base</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><b>Fig. 1</b> &mdash; one session, and the tree it produces</figcaption>
+    </figure>
+
+    <p class="takeaway">
+      When an idea dead-ends, jump back to the last version that worked and go a different way.
+      <b>Nothing is overwritten, and the number tells you where you are</b> &mdash; no naming
+      scheme to invent, and none to abandon by week three.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 03 · COMPARISON ============ -->
+<section id="why">
+  <div class="wrap">
+    <p class="sec-label">03 &mdash; positioning</p>
+    <h2 class="sec-title">Why not what you already use</h2>
+    <p class="sec-lede">
+      These tools are good at what they do. They just answer a different question.
+    </p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Weights &amp; Biases</h3>
+        <div class="verdict">tracks runs, not state</div>
+        <p>
+          Metrics, curves and artifacts, thoroughly. But it doesn&rsquo;t touch your code state,
+          so it can tell you one run scored better than another without telling you what you
+          changed.
+        </p>
+      </div>
+      <div class="card">
+        <h3>DVC</h3>
+        <div class="verdict">pipeline first</div>
+        <p>
+          Genuinely versions code and data together, and <code>dvc exp</code> is good. But it is
+          built around defining a pipeline up front &mdash; heavy when you just want to try
+          something on a script and see if it&rsquo;s worth pursuing.
+        </p>
+      </div>
+      <div class="card">
+        <h3>plain git</h3>
+        <div class="verdict">no opinion</div>
+        <p>
+          Tracks everything, organizes nothing. Branch names are arbitrary, and by week three
+          you&rsquo;ve abandoned whatever naming scheme you invented in week one.
+        </p>
+      </div>
+      <div class="card is-xper">
+        <h3>xper</h3>
+        <div class="verdict">the name is the lineage</div>
+        <p>
+          Opinionated, so you don&rsquo;t have to invent a scheme. Version numbers encode
+          ancestry, navigation is one command, and it&rsquo;s git underneath &mdash; nothing to
+          migrate into.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 · FEATURES ============ -->
+<section id="more">
+  <div class="wrap">
+    <p class="sec-label">04 &mdash; beyond the tree</p>
+    <h2 class="sec-title">What else it does</h2>
+    <p class="sec-lede">
+      The tree gets you organized. These are the things you reach for once you have forty of them.
+    </p>
+
+    <div class="feats">
+
+      <div class="feat">
+        <h3>Rank by your own metric</h3>
+        <p>
+          Point xper at a log file and write plain <code>key:value</code> lines. It will order
+          your entire experiment tree by any field in it &mdash; then take you straight to the
+          best one.
+        </p>
+        <div class="code">
+<pre><span class="c-prompt">$</span> xper logfile <span class="c-flag">--path</span> log.txt
+<span class="c-prompt">$</span> cat log.txt
+accuracy:0.918
+loss:0.211
+<span class="c-prompt">$</span> xper sort <span class="c-flag">--by</span> accuracy
+<span class="c-prompt">$</span> xper jump <span class="c-flag">--last</span>   <span class="c-cmt"># best run</span></pre>
+        </div>
+      </div>
+
+      <div class="feat">
+        <h3>Walk the ordering</h3>
+        <p>
+          <code>jump</code> traverses that sorted order, not the tree &mdash; so after a metric
+          sort, &ldquo;next&rdquo; means &ldquo;next best&rdquo;. Steps clamp at the ends unless
+          you ask them to wrap.
+        </p>
+        <div class="code">
+<pre><span class="c-prompt">$</span> xper jump <span class="c-flag">-f</span> 1        <span class="c-cmt"># forward one</span>
+<span class="c-prompt">$</span> xper jump <span class="c-flag">-b</span> 3 <span class="c-flag">--wrap</span>
+<span class="c-prompt">$</span> xper jump <span class="c-flag">--first</span>
+<span class="c-prompt">$</span> xper children     <span class="c-cmt"># what branched off here</span></pre>
+        </div>
+      </div>
+
+      <div class="feat">
+        <h3>Freeze a result</h3>
+        <p>
+          <code>xper finish</code> makes the working tree read-only <em>on disk</em>. A finished
+          experiment physically cannot be edited &mdash; by you, your editor, or a stray script
+          &mdash; until you unlock it.
+        </p>
+        <div class="code">
+<pre><span class="c-prompt">$</span> xper finish
+<span class="c-prompt">$</span> echo x &gt;&gt; train.py
+zsh: permission denied: train.py
+<span class="c-prompt">$</span> xper modify       <span class="c-cmt"># writable again</span></pre>
+        </div>
+      </div>
+
+      <div class="feat">
+        <h3>Work with other people</h3>
+        <p>
+          Point at a remote and push. Branch off a collaborator&rsquo;s version and xper mirrors
+          their address into your own namespace, recording what you started from.
+        </p>
+        <div class="code">
+<pre><span class="c-prompt">$</span> xper remote <span class="c-flag">--add</span> git@github.com:lab/runs.git
+<span class="c-prompt">$</span> xper backup       <span class="c-cmt"># push your work</span>
+<span class="c-prompt">$</span> xper update       <span class="c-cmt"># see what changed</span></pre>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 · DEMOS ============ -->
+<section id="demos">
+  <div class="wrap">
+    <p class="sec-label">05 &mdash; recordings</p>
+    <h2 class="sec-title">See it run</h2>
+    <p class="sec-lede">Real terminal sessions. Text is selectable &mdash; copy any command straight out of the player.</p>
+
+    <figure class="fig">
+
+      <div class="demo">
+        <h3>Building the tree</h3>
+        <p class="demo-sub">The session from Fig. 1, start to finish.</p>
+        <div class="demo-frame" data-cast="casts/tree.cast">
+          <div class="demo-fallback">
+            <div class="code">
+<pre><span class="c-prompt">$</span> xper init
+<span class="c-prompt">$</span> xper new <span class="c-flag">--tag</span> MLP        <span class="c-cmt"># v1</span>
+<span class="c-prompt">$</span> vim train.py
+<span class="c-prompt">$</span> xper new <span class="c-flag">-y</span>               <span class="c-cmt"># v1.1</span>
+<span class="c-prompt">$</span> vim train.py
+<span class="c-prompt">$</span> xper new <span class="c-flag">-y</span>               <span class="c-cmt"># v1.1.1</span>
+<span class="c-prompt">$</span> xper jump v1.1
+<span class="c-prompt">$</span> vim train.py
+<span class="c-prompt">$</span> xper new <span class="c-flag">-y</span>               <span class="c-cmt"># v1.1.2</span>
+<span class="c-prompt">$</span> xper new <span class="c-flag">--scratch</span>        <span class="c-cmt"># v2</span></pre>
+            </div>
+          </div>
+          <div class="demo-pending">recording pending &mdash; drop <code>casts/tree.cast</code> in to replace this</div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <h3>Sorting by a metric</h3>
+        <p class="demo-sub">Log a number, sort the tree by it, jump to the winner.</p>
+        <div class="demo-frame" data-cast="casts/sort.cast">
+          <div class="demo-fallback">
+            <div class="code">
+<pre><span class="c-prompt">$</span> xper logfile <span class="c-flag">--path</span> log.txt
+<span class="c-prompt">$</span> xper sort <span class="c-flag">--by</span> accuracy
+<span class="c-prompt">$</span> xper jump <span class="c-flag">--last</span>
+<span class="c-prompt">$</span> cat log.txt
+accuracy:0.918</pre>
+            </div>
+          </div>
+          <div class="demo-pending">recording pending &mdash; drop <code>casts/sort.cast</code> in to replace this</div>
+        </div>
+      </div>
+
+      <div class="demo">
+        <h3>Locking a finished run</h3>
+        <p class="demo-sub"><code>finish</code> and <code>modify</code>, and what happens in between.</p>
+        <div class="demo-frame" data-cast="casts/finish.cast">
+          <div class="demo-fallback">
+            <div class="code">
+<pre><span class="c-prompt">$</span> xper finish
+<span class="c-prompt">$</span> echo x &gt;&gt; train.py
+zsh: permission denied: train.py
+<span class="c-prompt">$</span> xper modify
+<span class="c-prompt">$</span> echo x &gt;&gt; train.py       <span class="c-cmt"># fine now</span></pre>
+            </div>
+          </div>
+          <div class="demo-pending">recording pending &mdash; drop <code>casts/finish.cast</code> in to replace this</div>
+        </div>
+      </div>
+
+      <figcaption class="fig-cap"><b>Fig. 2</b> &mdash; recorded sessions</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ 06 · REFERENCE ============ -->
+<section id="reference">
+  <div class="wrap">
+    <p class="sec-label">06 &mdash; reference</p>
+    <h2 class="sec-title">Every command</h2>
+    <p class="sec-lede">The complete surface. <code>xper help</code> prints the same list in your terminal.</p>
+
+    <div class="ref-scroll">
+      <table class="ref">
+        <thead>
+          <tr><th style="width:38%">Command</th><th>What it does</th></tr>
+        </thead>
+        <tbody>
+
+          <tr class="group"><td colspan="2">Setup</td></tr>
+          <tr><td><code>xper init</code></td><td>Set up the experiment repo here. Creates a base branch named after your git user, plus a <code>.xper</code> metadata file.</td></tr>
+          <tr><td><code>xper remote <span class="c-flag">--add</span> &lt;url&gt;</code></td><td>Set the remote. With no <code>--add</code>, prints the current remotes.</td></tr>
+
+          <tr class="group"><td colspan="2">Creating versions</td></tr>
+          <tr><td><code>xper new</code></td><td>Commit your work to the current version, then open a child of it: <code>v1</code> &rarr; <code>v1.1</code> &rarr; <code>v1.1.1</code>.</td></tr>
+          <tr><td><code>xper new <span class="c-flag">--tag</span> &lt;tag&gt;</code></td><td>Label the new version. Also <code>-t</code>.</td></tr>
+          <tr><td><code>xper new <span class="c-flag">--scratch</span></code></td><td>Start a new top-level version (<code>v2</code>, <code>v3</code>&hellip;) from your base branch instead of from where you are &mdash; it carries none of the current lineage&rsquo;s work. Also <code>-s</code>.</td></tr>
+          <tr><td><code>xper new <span class="c-flag">--yes</span></code></td><td>Create the version even when the parent shows no committed difference. You will reach for this often &mdash; see the note below. Also <code>-y</code>.</td></tr>
+          <tr><td><code>xper delete</code></td><td>Delete the current version and every subversion beneath it, then return to base. Also <code>del</code>.</td></tr>
+
+          <tr class="group"><td colspan="2">Navigating</td></tr>
+          <tr><td><code>xper jump &lt;version&gt;</code></td><td>Go to a version by address, e.g. <code>xper jump v1.1</code>. Also <code>goto</code>.</td></tr>
+          <tr><td><code>xper jump &lt;v&gt; <span class="c-flag">-u</span> &lt;user&gt;</code></td><td>Jump to another person&rsquo;s version at that address.</td></tr>
+          <tr><td><code>xper jump <span class="c-flag">-f</span> &lt;n&gt;</code> / <code><span class="c-flag">-b</span> &lt;n&gt;</code></td><td>Move n steps forward or backward through the current ordering.</td></tr>
+          <tr><td><code>xper jump <span class="c-flag">--first</span></code> / <code><span class="c-flag">--last</span></code></td><td>Go to the first or last entry in the ordering.</td></tr>
+          <tr><td><code>xper jump <span class="c-flag">--wrap</span></code></td><td>Wrap around the ends instead of stopping at them. Also <code>-w</code>.</td></tr>
+          <tr><td><code>xper jump <span class="c-flag">-g</span></code></td><td>Traverse everyone&rsquo;s versions, not just your own.</td></tr>
+          <tr><td><code>xper children</code></td><td>List the versions branching directly off this one.</td></tr>
+          <tr><td><code>xper parent</code></td><td>Print the version this one came from.</td></tr>
+
+          <tr class="group"><td colspan="2">Comparing</td></tr>
+          <tr><td><code>xper diff &lt;version&gt;</code></td><td>Show the git diff between the current version and that one.</td></tr>
+          <tr><td><code>xper diff jump [opts]</code></td><td>Diff the current version against wherever that jump would land.</td></tr>
+
+          <tr class="group"><td colspan="2">Ordering</td></tr>
+          <tr><td><code>xper logfile <span class="c-flag">--path</span> &lt;file&gt;</code></td><td>Set this version&rsquo;s log file. Bare <code>xper logfile</code> prints it. Format is one <code>key:value</code> per line.</td></tr>
+          <tr><td><code>xper sort</code></td><td>Order versions by version number.</td></tr>
+          <tr><td><code>xper sort <span class="c-flag">--by</span> &lt;field&gt;</code></td><td>Order by a numeric field read from each version&rsquo;s log file. Comma-separated values sort component by component.</td></tr>
+          <tr><td><code>xper sort <span class="c-flag">--only-leaf</span></code></td><td>Keep only leaf versions &mdash; the ones nothing was built on top of.</td></tr>
+          <tr><td><code>xper index <span class="c-flag">--clear</span></code></td><td>Empty the ordering.</td></tr>
+          <tr><td><code>xper index <span class="c-flag">--add</span> [&lt;v&gt;]</code> / <code><span class="c-flag">--remove</span> [&lt;v&gt;]</code></td><td>Add or drop one version from the ordering. Defaults to the current one.</td></tr>
+          <tr><td><code>xper index <span class="c-flag">--after</span>|<span class="c-flag">--before</span>|<span class="c-flag">--swap</span> &lt;v&gt;</code></td><td>Reorder by hand. Target first, then the version to move (current by default).</td></tr>
+
+          <tr class="group"><td colspan="2">Collaborating</td></tr>
+          <tr><td><code>xper backup</code></td><td>Push your work to the remote.</td></tr>
+          <tr><td><code>xper update</code></td><td>Pull in what your collaborators did.</td></tr>
+
+          <tr class="group"><td colspan="2">Lifecycle</td></tr>
+          <tr><td><code>xper finish</code></td><td>Lock the current version: the working tree becomes read-only on disk, and the version is backed up if a remote is set.</td></tr>
+          <tr><td><code>xper modify</code></td><td>Unlock the current version for editing again. Only its owner can.</td></tr>
+          <tr><td><code>xper acquire</code> / <code>xper release</code></td><td>In sequential mode (<code>xper new -sl</code>), take and hand back the single write key so only one person edits at a time.</td></tr>
+          <tr><td><code>xper help</code></td><td>Print the full command list.</td></tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <div class="gotchas">
+      <h3># worth knowing</h3>
+      <ul>
+        <li><strong>Every command commits first.</strong> Branching, jumping and sorting all save your work before they move &mdash; navigating never costs you uncommitted changes.</li>
+        <li><strong><code>xper new</code> compares committed snapshots, not your working tree.</strong> Uncommitted edits don&rsquo;t register as a difference, so straight after editing a file it will decline. Pass <code>-y</code> &mdash; it commits your edits to the current version first, then opens the child.</li>
+        <li><strong>Your edits land on the version you are leaving.</strong> <code>xper new</code> snapshots the current version and hands you a fresh copy to work in, so the change you just made belongs to the parent.</li>
+        <li><strong><code>--scratch</code> branches from base, not from where you are.</strong> That&rsquo;s the point: it detaches from the current lineage. It is a copy of your base branch, so it is empty only if your base was.</li>
+        <li><strong>Version numbers are never reused.</strong> Delete <code>v1</code> and the next <code>--scratch</code> still gives you the next unused number, so an address always means one thing.</li>
+        <li><strong>Your username prefixes every branch.</strong> Your git <code>user.name</code> with spaces removed, so <code>v1.1</code> is really the branch <code>ADALOVELACE_v1.1</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 · INSTALL ============ -->
+<section id="install">
+  <div class="wrap">
+    <p class="sec-label">07 &mdash; install</p>
+    <h2 class="sec-title">Three lines</h2>
+    <p class="sec-lede">
+      xper is Bash and git, nothing else. No runtime to install, no account to make, no daemon.
+    </p>
+
+    <div class="install-grid">
+      <div>
+        <h3># install</h3>
+        <div class="code with-copy">
+          <button class="copy" type="button">copy</button>
+<pre><span class="c-prompt">$</span> git clone https://github.com/AliKhudiyev/xper.git ~/.xper
+<span class="c-prompt">$</span> ln -s ~/.xper/xper.sh ~/.xper/xper
+<span class="c-prompt">$</span> echo <span class="c-str">'export PATH="$HOME/.xper:$PATH"'</span> &gt;&gt; ~/.zshrc &amp;&amp; exec zsh</pre>
+        </div>
+        <p>
+          Using bash rather than zsh? Write to <code>~/.bashrc</code> instead. The whole repo
+          needs to be on <code>PATH</code> &mdash; the scripts call each other by name.
+        </p>
+      </div>
+
+      <div>
+        <h3># check it</h3>
+        <div class="code">
+<pre><span class="c-prompt">$</span> mkdir demo &amp;&amp; cd demo
+<span class="c-prompt">$</span> xper init
+<span class="c-prompt">$</span> echo <span class="c-str">"print('hi')"</span> &gt; train.py
+<span class="c-prompt">$</span> xper new <span class="c-flag">--tag</span> first
+<span class="c-prompt">$</span> git branch --show-current
+ADALOVELACE_v1</pre>
+        </div>
+        <p>
+          Requires <code>git</code> and <code>bash</code>, plus the usual POSIX tools. Tested on
+          macOS and Linux.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <span class="foot-brand">xper</span>
+    <span>No accounts, no server, nothing phones home &mdash; your experiments stay in your repo.</span>
+    <span class="spacer"></span>
+    <a href="https://github.com/AliKhudiyev/xper">Source</a>
+    <a href="https://github.com/AliKhudiyev/xper/blob/main/LICENSE">License</a>
+    <a href="https://github.com/AliKhudiyev/xper/issues">Issues</a>
+  </div>
+</footer>
+
+<script src="assets/asciinema-player.min.js"></script>
+<script src="assets/tree.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* theme toggle */
+  var btn = document.getElementById("theme-btn");
+  if (btn) {
+    btn.addEventListener("click", function () {
+      var root = document.documentElement;
+      var explicit = root.getAttribute("data-theme");
+      var dark = explicit
+        ? explicit === "dark"
+        : window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var next = dark ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("xper-theme", next); } catch (e) {}
+    });
+  }
+
+  /* copy buttons */
+  Array.prototype.forEach.call(document.querySelectorAll(".copy"), function (b) {
+    b.addEventListener("click", function () {
+      var pre = b.parentNode.querySelector("pre");
+      if (!pre) return;
+      var text = pre.innerText.replace(/^\s*\$ ?/gm, "").trim();
+      var done = function () {
+        b.textContent = "copied";
+        b.classList.add("done");
+        setTimeout(function () { b.textContent = "copy"; b.classList.remove("done"); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () {});
+      }
+    });
+  });
+
+  /* mount an asciinema player wherever a .cast actually exists;
+     otherwise the static transcript already in the page stands. */
+  Array.prototype.forEach.call(document.querySelectorAll(".demo-frame[data-cast]"), function (frame) {
+    var src = frame.getAttribute("data-cast");
+    fetch(src, { method: "HEAD" }).then(function (r) {
+      if (!r.ok) return;
+      frame.innerHTML = "";
+      AsciinemaPlayer.create(src, frame, {
+        fit: "width", terminalFontSize: "13px", idleTimeLimit: 2, theme: "asciinema"
+      });
+    }).catch(function () {});
+  });
+})();
+</script>
+
+</body>
+</html>
