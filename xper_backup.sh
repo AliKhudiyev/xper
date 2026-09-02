@@ -32,7 +32,7 @@ MODE=$(xper_ctx.sh mode)
 LOCKED=$(xper_ctx.sh locked)
 TAG=$(xper_ctx.sh tag)
 
-echo user=$USER mode=$MODE locked=$LOCKED tag=$TAG
+# echo user=$USER mode=$MODE locked=$LOCKED tag=$TAG
 
 xper_save.sh "before backup"
 git push -u origin $BRANCH > /dev/null 2>&1
@@ -42,5 +42,5 @@ if [[ $failed -ne 0 ]]; then
 	echo "[xper_backup] failed"
 	exit 1
 else
-	echo "[xper_backup] saved
+	echo "[xper_backup] saved"
 fi

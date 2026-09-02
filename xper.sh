@@ -116,6 +116,7 @@ OPTARG_SORTBY=""
 OPTARG_FILEPATH=""
 OPTARG_VERSION_SOURCE="$(xper_version.sh 1)"
 OPTARG_VERSION_TARGET=""
+OPTARG_REMOTE_URL=""
 OPTARG_SUBCMD=""
 
 while [[ $# -gt 0 ]]; do
@@ -189,7 +190,8 @@ while [[ $# -gt 0 ]]; do
 		-a|--add)
 			FLAG_ADD=1
 			if [[ $# -ge 2 ]]; then
-				OPTARG_VERSION_SOURCE=$2
+				OPTARG_VERSION_SOURCE="$2"
+				OPTARG_REMOTE_URL="$2"
 				shift
 			fi
 			shift
@@ -278,6 +280,9 @@ case $CMD in
 	init)
 		# OPTARG_USER=$(git config --global user.name | tr -d ' ')
 		xper_init.sh
+		;;
+	remote)
+		xper_remote.sh "$FLAG_ADD" "$OPTARG_REMOTE_URL"
 		;;
 	new)
 		# echo flgyes=$FLAG_YES

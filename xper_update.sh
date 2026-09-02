@@ -19,8 +19,8 @@ MODE=$(xper_ctx.sh mode)
 LOCKED=$(xper_ctx.sh locked)
 TAG=$(xper_ctx.sh tag)
 
-echo local user=$USERNAME
-echo owner=$OWNER mode=$MODE locked=$LOCKED tag=$TAG
+# echo local user=$USERNAME
+# echo owner=$OWNER mode=$MODE locked=$LOCKED tag=$TAG
 
 xper_save.sh "before update"
 if [[ $GLOBAL -eq 1 ]]; then
@@ -39,7 +39,8 @@ if [[ $MODE == "normal" ]]; then
 	else
 		xper.sh modify --yes
 	fi
-elif [[ $PUSHLOCKED -eq 1 || $USER != $USERNAME ]]; then # $MODE == "sequential"
+elif [[ $PUSHLOCKED -eq 1 || $USER != $USERNAME ]]; then
+	# $MODE == "sequential"
 	xper.sh finish --yes
 else
 	xper.sh modify --yes
