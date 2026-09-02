@@ -73,7 +73,7 @@ print_help(){
 	print_command_info "jump" "[-w|--wrap]:[-g|--global]:[-b|--backward <steps>]:[-f|--forward <steps>]:[-u|--user <username>]" "traverse the version tree by using relative distance/steps from the current version; -g option traverses the global version tree where everyone's commits exist; -u option lets traversing only particular user's commits:_:(for all users):(for backward jumps):(for forward jumps):(for only particular user)"
 	print_command_info "sort" "[--by <log-field>]:" "sort by version numbers or <log-field> if provided:"
 	print_command_info "index" "[--clear]:[--add [<version>]]:[-rm|--remove [<version>]]" "clear the index file:add <version> (current version by default) from the index file:remove <version> (current version by default) from the index file"
-	print_command_info "index" "[vXX] [--after|--before|--swap <vXY>]:" "put <vXX> (current version by default) after/before/swap <vXY> in the index file"
+	print_command_info "index" "[--after|--before|--swap <vXY>] [<vXX>:" "put <vXX> (current version by default) after/before/swap <vXY> in the index file"
 	print_command_info "diff" "<version>:" "show diff between current version and <version>:"
 	print_command_info "diff jump" "[jump-options]:" "show diff between current version and the one after jump:"
 
@@ -301,10 +301,10 @@ case $CMD in
 		xper_release.sh
 		;;
 	finish)
-		xper_finish.sh
+		xper_finish.sh "$FLAG_YES"
 		;;
 	modify)
-		xper_modify.sh
+		xper_modify.sh "$FLAG_YES"
 		;;
 	jump|goto)
 		FORWARD=1
@@ -367,16 +367,3 @@ case $CMD in
 		print_help
 		;;
 esac
-
-# if [[ $CMD == "init" ]]; then xper_init.sh $ARGS
-# elif [[ $CMD == "new" ]]; then xper_new.sh $ARGS
-# elif [[ $CMD == "update" ]]; then xper_update.sh $ARGS
-# elif [[ $CMD == "backup" ]]; then xper_backup.sh $ARGS
-# elif [[ $CMD == "finish" ]]; then xper_finish.sh $ARGS
-# elif [[ $CMD == "modify" ]]; then xper_modify.sh $ARGS
-# elif [[ $CMD == "lock" ]]; then xper_lock.sh $ARGS
-# elif [[ $CMD == "unlock" ]]; then xper_unlock.sh $ARGS
-# elif [[ $CMD == "goto" ]]; then xper_goto.sh $ARGS
-# elif [[ $CMD == "delete" ]]; then xper_delete.sh $ARGS
-# elif [[ $CMD == "children" ]]; then xper_children.sh $ARGS
-# fi

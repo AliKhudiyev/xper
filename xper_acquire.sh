@@ -11,14 +11,14 @@ else
 	if [[ $LOCKED -eq 0 || $USER == $USERNAME ]]; then
 		PUSHLOCKED=$(xper_locked.sh)
 		if [[ $PUSHLOCKED -eq 1 ]]; then
-			xper.sh modify
+			xper.sh modify --yes
 			xper_ctx.sh locked 1
 			xper_ctx.sh user $USERNAME
 			xper.sh backup
 			failed=$?
 			if [[ $failed -ne 0 ]]; then
 				echo "[xper_acquire] failed acquiring"
-				xper.sh finish
+				xper.sh finish --yes
 			else
 				echo "[xper_acquire] acquired"
 			fi
@@ -26,6 +26,6 @@ else
 			echo "[xper_acquire] already acquired"
 		fi
 	else
-		xper.sh finish
+		xper.sh finish --yes
 	fi
 fi

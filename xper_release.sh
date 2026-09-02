@@ -16,12 +16,12 @@ elif [[ $PUSHLOCKED -eq 1 ]]; then
 elif [[ $PUSHLOCKED -eq 0 && $LOCKED -eq 1 && $USER == $USERNAME ]]; then
 	xper_ctx.sh locked 0
 	# xper_ctx.sh user $USERNAME
-	xper.sh backup
+	xper.sh backup --yes
 	failed=$?
-	xper.sh finish
+	xper.sh finish --yes
 	if [[ $failed -eq 1 ]]; then
 		echo "[xper_release] could not release"
-		xper.sh modify
+		xper.sh modify --yes
 	else
 		echo "[xper_release] released"
 	fi

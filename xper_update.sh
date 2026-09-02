@@ -35,12 +35,12 @@ fi
 
 if [[ $MODE == "normal" ]]; then
 	if [[ $OWNER != $USERNAME ]]; then
-		xper.sh finish
+		xper.sh finish --yes
 	else
-		xper.sh modify
+		xper.sh modify --yes
 	fi
 elif [[ $PUSHLOCKED -eq 1 || $USER != $USERNAME ]]; then # $MODE == "sequential"
-	xper.sh finish
+	xper.sh finish --yes
 else
-	xper.sh modify
+	xper.sh modify --yes
 fi

@@ -9,7 +9,6 @@ setup(){
 	ROOT_DIR=$REPO_DIR
 	INDEX_FP=$ROOT_DIR/.index
 
-
 	xper.sh new    # v1
 	xper.sh new -s # v2
 	xper.sh new -y # v2.1
@@ -38,6 +37,18 @@ setup(){
 teardown(){
 	cd $REPO_DIR/..
 	find $REPO_DIR -mindepth 1 -delete
+}
+
+test_version(){
+	EXPECTED="$1"
+	CURRENT=$(xper_version.sh 0)
+	MESSAGE="$2"
+	if [[ $CURRENT != $EXPECTED ]]; then
+		echo "[test_xper_new]: version=$CURRENT (expected $EXPECTED)"
+		echo "$MESSAGE"
+		exit 1
+	fi
+	return 0
 }
 
 

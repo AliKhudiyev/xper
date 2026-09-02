@@ -66,10 +66,18 @@ pick_new_version(){
 		current_version+="."
 	done
 
-	local last_child=$(git branch --list "${USERNAME}_v*" | grep -E ".+v${prev_version}\..*" | grep -vE ".+v${prev_version}\..+\..+" | sort -V | tail -1 | rev | cut -d '.' -f 1 | rev)
-	# echo last_child=$last_child
-	local next_child=$((last_child+1))
-	echo $prev_version.$next_child
+	# echo prev_version=$prev_version # > prev_version
+	if [[ $prev_version != "" ]]; then
+		local last_child=$(git branch --list "${USERNAME}_v*" | grep -E ".+v${prev_version}\..*" | grep -vE ".+v${prev_version}\..+\..+" | sort -V | tail -1 | rev | cut -d '.' -f 1 | rev)
+		# echo last_child=$last_child
+		local next_child=$((last_child+1))
+		echo $prev_version.$next_child
+	else
+		local last_child=$(git branch --list "${USERNAME}_v*" | grep -E "${USERNAME}_v[0-9]+" | grep -vE "${USERNAME}_v[0-9]+\..+" | sort -V | tail -1 | rev | cut -d 'v' -f 1 | rev)
+		# echo oops last_child=$last_child # > last_child
+		local next_child=$((last_child+1))
+		echo $next_child
+	fi
 }
 
 new_from_scratch(){
@@ -99,7 +107,7 @@ new_from_current(){
 		local new_version=$(pick_new_version "$owner_version")
 		# echo "new version = $new_version"
 		git checkout -b ${USERNAME}_v${new_version} > /dev/null 2>&1
-		xper.sh modify
+		xper.sh modify --yes
 		xper_ctx.sh reference "${CURRENT_VERSION}"
 		xper_ctx.sh mode "normal"
 		xper_ctx.sh locked "0"
@@ -126,7 +134,7 @@ fi
 
 if [[ $success -eq 1 ]]; then
 	xper_ctx.sh tag $TAG
-	xper.sh modify
+	xper.sh modify --yes
 	# echo "[xper_new] mode processing..."
 	if [[ $NORMALMODE -eq 0 ]]; then
 		xper_ctx.sh mode sequential
@@ -134,7 +142,7 @@ if [[ $success -eq 1 ]]; then
 			xper.sh acquire
 		else
 			xper.sh update
-			xper.sh finish
+			xper.sh finish --yes
 		fi
 	fi
 fi

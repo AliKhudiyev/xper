@@ -16,19 +16,18 @@ else
 fi
 
 
-./test_xper_init.sh && 
-./test_xper_new.sh && 
-./test_xper_delete.sh &&
-./test_xper_update.sh &&
-./test_xper_backup.sh &&
-./test_xper_finish.sh &&
-./test_xper_acquire.sh &&
-./test_xper_release.sh &&
-./test_xper_modify.sh &&
-./test_xper_jump.sh &&
+./test_xper_init.sh &&    # done
+./test_xper_new.sh &&     # done
+./test_xper_delete.sh &&  # done
+./test_xper_update.sh &&  #
+./test_xper_backup.sh &&  # 
+./test_xper_acquire.sh && # 
+./test_xper_release.sh && # 
+./test_xper_index.sh &&   # done
+./test_xper_jump.sh &&    # done
 ./test_xper_diff.sh &&
-./test_xper_sort.sh &&
-./test_xper_acquire.sh &&
-./test_xper_release.sh &&
-./test_xper_clean.sh &&
-./test_xper_aux.sh
+./test_xper_sort.sh &&    # done
+./test_xper_finish.sh &&  # done
+./test_xper_modify.sh &&  # done
+./test_xper_clean.sh &&   # done
+./test_xper_aux.sh        # 

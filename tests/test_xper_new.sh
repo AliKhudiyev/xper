@@ -11,7 +11,8 @@ setup(){
 
 	# other user's versions
 	git checkout -b USER
-	printf "user=USER\nmode=normal\nlocked=0\ntag=\nlog=\nowner=USER\nreference=\n" > .xper
+	printf "user=USER\nmode=normal\nlocked=0\ntag=\nlog=\n" > .xper
+	printf "owner=USER\nreference=\n" >> .xper
 	printf ".heads\n.heads_filtered\n.index\n" > .gitignore
 	git add . && git commit -m 'initial commit by USER'
 	git checkout -b USER_v2
@@ -25,7 +26,6 @@ setup(){
 	git checkout -b USER_v7
 
 	git checkout $USERNAME
-	exit 0
 }
 
 teardown(){
@@ -34,10 +34,12 @@ teardown(){
 }
 
 test_version(){
-	EXPECTED=$1
+	EXPECTED="$1"
 	CURRENT=$(xper_version.sh 0)
+	MESSAGE="$2"
 	if [[ $CURRENT != $EXPECTED ]]; then
 		echo "[test_xper_new]: version=$CURRENT (expected $EXPECTED)"
+		echo "$MESSAGE"
 		exit 1
 	fi
 	return 0
@@ -58,7 +60,7 @@ test_tag(){
 	CURRENT=$(xper_ctx.sh tag)
 	if [[ $CURRENT != $EXPECTED ]]; then
 		echo "[test_xper_new]: tag=$CURRENT (expected $EXPECTED)"
-		return 1
+		exit 1
 	fi
 	return 0
 }
@@ -69,7 +71,7 @@ failed=0
 
 # should create the first version
 xper.sh new
-test_version 1
+test_version 1 "first test ever"
 failed=$(($failed+$?))
 
 # should not create a new subversion (due to no changes)
@@ -137,7 +139,7 @@ test_version 4.2
 failed=$(($failed+$?))
 
 # = = = tests for multi-user settings = = =
-
+echo "running tests for multi-user settings..."
 # should create a new copy at v2.2 (since v2.1 already exists)
 git checkout USER_v2
 xper.sh new
@@ -145,9 +147,10 @@ test_version 2.2 && test_reference USER_v2
 failed=$(($failed+$?))
 
 # should create a new copy at v2.1.2 (with reference to USER_v2.1)
+[[ $(git branch --list "$USERNAME}_v2.1.1") == "" ]] && git checkout -b "${USERNAME}_v2.1.1"
 git checkout USER_v2.1
 xper.sh new
-test_version 2.1.2 && test_reference USER_v2.1
+test_version 2.1.2 "oh no" && test_reference USER_v2.1
 failed=$(($failed+$?))
 
 # should create a new copy at v2.1.1.1 (with reference to USER_v2.1.1)
@@ -163,9 +166,10 @@ test_version 2.1.2.1 && test_reference USER_v2.1.2.4
 failed=$(($failed+$?))
 
 # should create a new copy at v4 (with reference to USER_v7)
+[[ $(git branch --list "$USERNAME}_v4") == "" ]] && git checkout -b "${USERNAME}_v4"
 git checkout USER_v7
 xper.sh new
-test_version 4 && test_reference USER_v7
+test_version 5 && test_reference USER_v7
 failed=$(($failed+$?))
 
 if [[ $failed -eq 0 ]]; then
