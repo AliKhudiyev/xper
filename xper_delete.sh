@@ -10,17 +10,17 @@ ROOT_DIR=$(xper_rootdir.sh)
 INDEX_FP=$ROOT_DIR/.index
 
 if [[ $NODE != $BASE && $NODE == "$USERNAME"* ]]; then
-	git add $PROJ_DIR && git commit -m "commit by $USERNAME before deletion of $NODE"
-	git checkout $BASE
-	git branch -D $NODE
-	[[ $GIT_REPO != "" ]] && git push origin -d $NODE
+	xper_save.sh "before deletion of $NODE"
+	git checkout $BASE > /dev/null 2>&1
+	git branch -D $NODE > /dev/null 2>&1
+	[[ $GIT_REPO != "" ]] && git push origin -d $NODE > /dev/null 2>&1
 
 	if [[ -e $INDEX_FP ]]; then
 		sed "/$NODE/d" $INDEX_FP > $INDEX_FP.tmp && mv $INDEX_FP.tmp $INDEX_FP
 	fi
 
 	for child in $CHILDREN; do
-		git checkout $child
+		git checkout $child > /dev/null 2>&1
 		xper_delete.sh
 	done
 else

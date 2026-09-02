@@ -23,14 +23,14 @@ fi
 
 if [[ ! -e $INDEX_FP ]]; then
 	xper_sort.sh
-else
-	echo index already exists
+# else
+# 	echo index already exists
 fi
 
 versions=($(cat $INDEX_FP))
 # target_version=$CURRENT_VERSION
 target_version=$(echo ${versions[@]: -1} | cut -d '|' -f 1)
-echo default target_version=$target_version
+# echo default target_version=$target_version
 
 if [[ $GLOBAL -eq 0 ]]; then
 	# versions=($(cat $INDEX_FP | grep -E "$USER.*"))
@@ -38,17 +38,17 @@ if [[ $GLOBAL -eq 0 ]]; then
 	# uncomment line above (with $include) if you want stricter USERNAME matching
 fi
 
-echo versions=${#versions[@]}
-echo ${versions[@]}
+# echo versions=${#versions[@]}
+# echo ${versions[@]}
 if [[ ${#versions[@]} -eq 0 ]]; then
 	echo "[xper_goto] no other version exists"
 	exit 0
 fi
 
 [[ $WRAP -eq 1 ]] && STEPS=$(($4 % ${#versions[@]}))
-echo $STEPS steps
+# echo $STEPS steps
 
-echo version count is ${#versions[@]}
+# echo version count is ${#versions[@]}
 
 get_version_number(){
 	echo $1 | rev | cut -d '_' -f 1 | rev
@@ -59,7 +59,7 @@ for i in ${!versions[@]}; do
 	# version=$(get_version_number ${version})
 	# current=$(get_version_number $CURRENT_VERSION)
 	current=$CURRENT_VERSION
-	echo current=$current and version=${version}
+	# echo current=$current and version=${version}
 	if [[ "${current}" == "${version}" || $((i+1)) -eq ${#versions[@]} ]]; then
 		ti=$(($i+$STEPS))
 		if [[ $FORWARD -eq 0 ]]; then
@@ -85,14 +85,13 @@ for i in ${!versions[@]}; do
 	fi
 done
 
-echo target_version=$target_version
+# echo target_version=$target_version
 
 if [[ $target_version != $CURRENT_VERSION ]]; then
-	git add $PROJ_DIR && git commit -m "commit by $USERNAME before jump"
+	xper_save.sh "before jump"
 	user=$(echo $target_version | rev | cut -d '_' -f 2 | rev)
 	version=$(get_version_number $target_version)
 	xper.sh jump ${version} -u $user
-	# git checkout ${target_version}
 else
 	echo "[xper_goto] already on the right version"
 fi

@@ -16,10 +16,10 @@ ROOT_DIR=$(xper_rootdir.sh)
 PROJ_DIR=$ROOT_DIR
 INDEX_FP="$ROOT_DIR/.index"
 
-echo "scratch=$SCRATCH tag=$TAG yes=$YES"
-echo "username is $USERNAME"
-echo "current version is $CURRENT_VERSION"
-echo "parent version is $PARENT_VERSION"
+# echo "scratch=$SCRATCH tag=$TAG yes=$YES"
+# echo "username is $USERNAME"
+# echo "current version is $CURRENT_VERSION"
+# echo "parent version is $PARENT_VERSION"
 
 # version_distance v1 v2
 version_distance(){
@@ -73,11 +73,11 @@ pick_new_version(){
 }
 
 new_from_scratch(){
-	git checkout $USERNAME
+	git checkout $USERNAME 2>/dev/null 2>&1
 	CHILDREN=$(git branch --list "${USERNAME}_v*" | grep -vE ".+v[0-9]+\..*" | sed -E "s/.+_v([0-9]+)/\1/g" | sort -n | tail -1)
-	echo "${USERNAME}'s last children = $CHILDREN"
-	git checkout -b ${USERNAME}_v$((CHILDREN+1))
-	git commit --allow-empty -m "Initial placeholder commit"
+	# echo "${USERNAME}'s last children = $CHILDREN"
+	git checkout -b ${USERNAME}_v$((CHILDREN+1)) > /dev/null 2>&1
+	xper_save.sh "[as initial placeholder commit]" 1
 	xper.sh sort
 };
 
@@ -85,10 +85,10 @@ new_from_current(){
 	if [[ $CURRENT_VERSION == $USERNAME* ]]; then
 
 		CHILDREN=$(git branch --list "$CURRENT_VERSION.*" | grep -vE "$CURRENT_VERSION\..*\..*" | sed -E "s/${CURRENT_VERSION}\.([0-9]+)/\1/g" | sort -n | tail -1)
-		echo "current last children = $CHILDREN"
-		git checkout -b ${CURRENT_VERSION}.$((CHILDREN+1))
+		# echo "current last children = $CHILDREN"
+		git checkout -b ${CURRENT_VERSION}.$((CHILDREN+1)) > /dev/null 2>&1
 		xper_ctx.sh reference "${CURRENT_VERSION}"
-		xper_save.sh "[as initial placeholder commit]"
+		xper_save.sh "[as initial placeholder commit]" 1
 		xper.sh sort
 	else
 		# echo owner!=user
@@ -97,11 +97,13 @@ new_from_current(){
 		# echo finding new version...
 		# pick_new_version $owner_version
 		local new_version=$(pick_new_version "$owner_version")
-		echo "new version = $new_version"
-		git checkout -b ${USERNAME}_v${new_version}
+		# echo "new version = $new_version"
+		git checkout -b ${USERNAME}_v${new_version} > /dev/null 2>&1
 		xper.sh modify
 		xper_ctx.sh reference "${CURRENT_VERSION}"
-		xper_save.sh "[as initial placeholder commit]"
+		xper_ctx.sh mode "normal"
+		xper_ctx.sh locked "0"
+		xper_save.sh "[as initial placeholder commit]" 1
 		xper.sh sort
 	fi
 };
@@ -125,7 +127,7 @@ fi
 if [[ $success -eq 1 ]]; then
 	xper_ctx.sh tag $TAG
 	xper.sh modify
-	echo "[xper_new] mode processing..."
+	# echo "[xper_new] mode processing..."
 	if [[ $NORMALMODE -eq 0 ]]; then
 		xper_ctx.sh mode sequential
 		if [[ $ACQUIRE -eq 1 ]]; then

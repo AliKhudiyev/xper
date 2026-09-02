@@ -15,14 +15,13 @@ USER=$3; [[ $USER == "" ]] && USER=$USERNAME
 ONLYLEAF=$4
 RECURSIVE_SORT=0
 
-# git add $PROJ_DIR && git commit -m "commit by $USERNAME before sorting"
 xper_save.sh "before sorting"
 
 if [[ $GLOBAL -eq 1 ]]; then
-	echo global=1
+	# echo global=1
 	git branch --list --format='%(refname:short)' > ${HEADS_DIR}_filtered
 else
-	echo global=0
+	# echo global=0
 	git branch --list "${USER}*" --format='%(refname:short)' > ${HEADS_DIR}_filtered
 fi
 

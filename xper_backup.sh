@@ -35,11 +35,12 @@ TAG=$(xper_ctx.sh tag)
 echo user=$USER mode=$MODE locked=$LOCKED tag=$TAG
 
 xper_save.sh "before backup"
-git push -u origin $BRANCH
-# git add $PROJ_DIR && git commit -m "commit by $USERNAME" && git push -u origin $BRANCH
+git push -u origin $BRANCH > /dev/null 2>&1
 failed=$?
 
 if [[ $failed -ne 0 ]]; then
 	echo "[xper_backup] failed"
 	exit 1
+else
+	echo "[xper_backup] saved
 fi

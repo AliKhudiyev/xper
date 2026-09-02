@@ -67,13 +67,20 @@ print_help(){
 	print_command_info "del|delete" ":" "delete current version and all of its subversions recursively:"
 	print_command_info "update" ":" "pull lates changes from remote repository:"
 	print_command_info "backup" ":" "push local changes to remote repository"
-	print_command_info "finish" ":" "lock current version (permit further modifications) and backup to remote repository (if any)"
-	print_command_info "modify" ":" "update from remote repository (if any) and unlock current version for modification"
-	print_command_info "jump" "<version>:[-u|--user]" "go to absolute version of any user (default user is the local user):"
+	print_command_info "acquire" ":" "pull lates changes from remote repository:"
+	print_command_info "release" ":" "push local changes to remote repository"
+	print_command_info "jump" "<version>:[-u|--user <username>]" "go to absolute version of any user (default user is the local user):"
 	print_command_info "jump" "[-w|--wrap]:[-g|--global]:[-b|--backward <steps>]:[-f|--forward <steps>]:[-u|--user <username>]" "traverse the version tree by using relative distance/steps from the current version; -g option traverses the global version tree where everyone's commits exist; -u option lets traversing only particular user's commits:_:(for all users):(for backward jumps):(for forward jumps):(for only particular user)"
-	print_command_info "mode" "[-n|--normal]:[-s|--sequential]" "switch to normal mode; in this mode, update and backup commands are non-blocking:switch to supervisional or sequential mode; in this mode, update and backup commands are blocking relative to other contributors"
+	print_command_info "sort" "[--by <log-field>]:" "sort by version numbers or <log-field> if provided:"
+	print_command_info "index" "[--clear]:[--add [<version>]]:[-rm|--remove [<version>]]" "clear the index file:add <version> (current version by default) from the index file:remove <version> (current version by default) from the index file"
+	print_command_info "index" "[vXX] [--after|--before|--swap <vXY>]:" "put <vXX> (current version by default) after/before/swap <vXY> in the index file"
 	print_command_info "diff" "<version>:" "show diff between current version and <version>:"
 	print_command_info "diff jump" "[jump-options]:" "show diff between current version and the one after jump:"
+
+	echo "  -------------- auxiliary --------------"
+	print_command_info "finish" ":" "lock current version (permit further modifications) and backup to remote repository (if any)"
+	print_command_info "modify" ":" "update from remote repository (if any) and unlock current version for modification"
+	# print_command_info "mode" "[-n|--normal]:[-s|--sequential]" "switch to normal mode; in this mode, update and backup commands are non-blocking:switch to supervisional or sequential mode; in this mode, update and backup commands are blocking relative to other contributors"
 	print_command_info "children" ":" "show all 1-level-deep subversions"
 	print_command_info "help" ":" "print this whole message to terminal:"
 }
@@ -271,7 +278,7 @@ case $CMD in
 		xper_init.sh
 		;;
 	new)
-		echo flgyes=$FLAG_YES
+		# echo flgyes=$FLAG_YES
 		xper_new.sh "$FLAG_SCRATCH" "$OPTARG_TAG" "$FLAG_YES" "$FLAG_NORMAL_MODE" "$FLAG_ACQUIRE"
 		;;
 	tag)
@@ -314,9 +321,6 @@ case $CMD in
 			fi
 			xper_goto_rel.sh $FLAG_GLOBAL $FLAG_WRAP $FORWARD $STEPS $OPTARG_USER
 		fi
-		;;
-	mode)
-		echo mode
 		;;
 	diff)
 		current_version=$(git branch --show-current)

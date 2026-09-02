@@ -22,10 +22,13 @@ fi
 ./test_xper_update.sh &&
 ./test_xper_backup.sh &&
 ./test_xper_finish.sh &&
+./test_xper_acquire.sh &&
+./test_xper_release.sh &&
 ./test_xper_modify.sh &&
 ./test_xper_jump.sh &&
 ./test_xper_diff.sh &&
 ./test_xper_sort.sh &&
-./test_xper_mode.sh &&
+./test_xper_acquire.sh &&
+./test_xper_release.sh &&
 ./test_xper_clean.sh &&
 ./test_xper_aux.sh

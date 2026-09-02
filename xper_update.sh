@@ -24,13 +24,13 @@ echo owner=$OWNER mode=$MODE locked=$LOCKED tag=$TAG
 
 xper_save.sh "before update"
 if [[ $GLOBAL -eq 1 ]]; then
-	git pull --rebase --allow-unrelated-histories --all
+	git pull --rebase --allow-unrelated-histories --all > /dev/null 2>&1
 	for branch in $(git branch -r | grep -v '\->'); do 
-		git branch --track ${branch#origin/} $branch 2>/dev/null
+		git branch --track ${branch#origin/} $branch > /dev/null 2>&1
 	done
-	git pull --rebase --allow-unrelated-histories --all
+	git pull --rebase --allow-unrelated-histories --all > /dev/null 2>&1
 elif git branch -r | grep -v "\->" | cut -d '/' -f 2 | grep -w "$BRANCH" -q ; then
-	git pull --rebase --allow-unrelated-histories origin $BRANCH
+	git pull --rebase --allow-unrelated-histories origin $BRANCH > /dev/null 2>&1
 fi
 
 if [[ $MODE == "normal" ]]; then
