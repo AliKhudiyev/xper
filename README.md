@@ -18,7 +18,7 @@ $ echo "print('bye')" >> hello.py
 $ xper backup
 ```
 
-## TODO
+## TODO - v1
 
 - ~Fix `xper new` and make options work.~
 - ~Remove `lock` and `unlock`; use `finish` and `modify` properly instead~
@@ -43,4 +43,17 @@ $ xper backup
     - ~Implement `xper index [-a|--add] [<version>]]` to add the version (current version by default) to the index file.~
     - ~Implement `xper index [-rm|--remove] [<version>]]` to remove the version from the index file.~
     - ~Implement `xper index <vXX> [--after|--before|--swap <vXY>] to reorder the index file entries `vXX` and `vXY` accordingly.~
+
+## TODO - v2
+- Add `xper gitify` and `xperify` commands to convett an xper repo to git repo and an already existing git repo to an xper repo.
+- Webify xper repo by
+    - Showing reference counts
+    - Searching for similar experiments based on references.
+    - Counting linear version increments based on the time of version creation (as opposed to version ancestry).
+        - `xper sort [-ct|-mt] [sort-options]` for sorting based on the creation/modification timestamps.
+        - `xper jump [-ct|-mt] [jump-options]` executes `xper sort [-ct|-mt]` first, then `xper jump [jump-options]`.
+            - In fact, `xper jump [-s|sort-options] [jump-options]` always run `xper sort [sort-options]` first (if index file doesn't exist of `-s` flag is present), and then `xper jump [jump-options]`.
+        - [no need; `sort -ct` kinda does this] `xper sort -ref` to sort based on true references.
+- Add `xper broadcast <file> --to <vXX**>` to broadcast a file to (1) vXX only -- `<vXX>`, or (2) vXXY for all Y -- `<vXX*>`, or (3) vXXY...Z for all Y...Z -- `<vXX**>`.
+- Add `xper run <script> --version <vXX**> --workers <n>` to run script in implied versions accordingly (similar to `xper broadcast <file> --to <vXX**>`) with up to `n` workers at a time.
 
