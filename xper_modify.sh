@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_modify.sh FLAG_YES
 
 YES=$1

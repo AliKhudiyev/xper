@@ -1,4 +1,4 @@
-#/bin/bash
+#/usr/bin/env bash
 
 setup(){
 	cd $REPO_DIR
@@ -53,7 +53,7 @@ test_xper_ctx(){
 # = = = test begins = = = #
 setup
 
-xper.sh init
+xper.sh init -y
 test_files_exist && test_xper_ctx
 
 if [[ $? -eq 0 ]]; then

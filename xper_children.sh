@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 USERNAME=$(git config --global user.name | tr -d ' ')
 BASE=${USERNAME}

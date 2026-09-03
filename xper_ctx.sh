@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_ctx.sh STR_FIELD opt:STR_VALUE opt:FLAG_YES
 
 FIELD=$1

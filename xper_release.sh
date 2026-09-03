@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_release.sh
 
 MODE=$(xper_ctx.sh mode)

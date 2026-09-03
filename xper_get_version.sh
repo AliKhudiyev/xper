@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_get_version.sh STR_BRANCH
 
 FULL=0

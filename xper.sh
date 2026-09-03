@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 NECESSARY_MARGIN=2
 RIGHT_MARGIN=$(($NECESSARY_MARGIN+2))
@@ -283,7 +283,7 @@ done
 case $CMD in
 	init)
 		# OPTARG_USER=$(git config --global user.name | tr -d ' ')
-		xper_init.sh
+		xper_init.sh "$FLAG_YES"
 		;;
 	remote)
 		xper_remote.sh "$FLAG_ADD" "$OPTARG_REMOTE_URL"

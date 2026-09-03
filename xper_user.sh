@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_user.sh
 
 if [[ ! -d .git ]]; then

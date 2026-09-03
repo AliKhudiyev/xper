@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 USERNAME=$(xper_user.sh)
 BASE=${USERNAME}

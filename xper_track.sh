@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_track.sh STR_FILEPATH
 
 FILEPATH=$1

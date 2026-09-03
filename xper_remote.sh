@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_remote.sh FLAG_ADD STR_URL
 
 YES=$1

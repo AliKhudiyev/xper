@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_update.sh FLAG_GLOBAL
 
 GLOBAL=$1

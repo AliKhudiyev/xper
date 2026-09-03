@@ -1,10 +1,10 @@
-#/bin/bash
+#/usr/bin/env bash
 
 setup(){
 	cd $REPO_DIR
 	source ../utils.sh
 
-	xper.sh init
+	xper.sh init -y
 	USERNAME=$(xper_user.sh)
 
 	xper.sh new    # v1

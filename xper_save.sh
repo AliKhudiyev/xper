@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_save.sh STR_MSG FLAG_YES
 
 MSG=$1

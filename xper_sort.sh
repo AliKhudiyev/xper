@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_sort STR_SORTBY FLAG_GLOBAL STR_USER FLAG_ONLYLEAF FLAG_YES
 
 USERNAME=$(xper_user.sh)

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_version.sh FLAG_FULL
 
 if [[ ! -d .git ]]; then

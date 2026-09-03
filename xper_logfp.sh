@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_logfp.sh FLAG_SETLOGFP STR_LOGFP
 
 if [[ ! -f .xper ]]; then

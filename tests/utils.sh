@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 assert_equals(){
     local expected="$1"

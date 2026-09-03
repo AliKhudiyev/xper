@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ROOT_DIR=$(xper_rootdir.sh)
 

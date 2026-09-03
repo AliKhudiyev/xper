@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_goto STR_VERSION FLAG_FIRST FLAG_LAST STR_USER
 
 VERSION=$1

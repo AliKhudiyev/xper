@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_backup.sh FLAG_GLOBAL
 
 GLOBAL=$1

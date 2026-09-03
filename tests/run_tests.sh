@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 REPO_DIR="$(pwd)/repo"
 export PATH="$(pwd)/..:$PATH"
@@ -18,7 +18,7 @@ fi
 
 ./test_xper_init.sh &&    # done
 ./test_xper_new.sh &&     # done
-./test_xper_delete.sh &&  # done
+./test_xper_delete.sh     # done
 ./test_xper_update.sh &&  #
 ./test_xper_backup.sh &&  # 
 ./test_xper_acquire.sh && # 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_acquire.sh
 
 MODE=$(xper_ctx.sh mode)
@@ -26,6 +26,6 @@ else
 			echo "[xper_acquire] already acquired"
 		fi
 	else
-		xper.sh finish --yes
+		xper.sh finish 1
 	fi
 fi

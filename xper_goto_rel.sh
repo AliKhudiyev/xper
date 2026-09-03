@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_goto_rel.sh FLAG_GLOBAL FLAG_WRAP FLAG_FORWARD INT_STEPS STR_USER FLAG_FIRST FLAG_LAST
 
 GLOBAL=$1

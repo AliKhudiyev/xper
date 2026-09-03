@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CURRENT_VERSION=$(xper_version.sh 1)
 USERNAME=$(xper_user.sh)

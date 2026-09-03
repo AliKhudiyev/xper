@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # usage: xper_init FLAG_SCRATCH STR_TAG FLAG_YES FLAG_NORMALMODE FLAG_ACQUIRE
 
 SCRATCH=$1
