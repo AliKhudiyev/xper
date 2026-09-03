@@ -111,4 +111,109 @@
       io.observe(stage);
     }
   }
+
+  /* ------------------------------------------------------------------ *
+   * Fig. 2 - supervisional mode: the write key changing hands.
+   * Verified end to end with two users against a shared remote.
+   * ------------------------------------------------------------------ */
+  var SEQ = [
+    { who:"ali",  cmd:"xper new -sl -y",          note:"v2.1, in supervisional mode",  key:"",     ali:"lock" },
+    { who:"ali",  cmd:'echo "hello world" > text', note:"nobody holds the key yet",     key:"",     ali:"lock", denied:1 },
+    { who:"ali",  cmd:"xper acquire",              note:"Ali takes the key",            key:"Ali",  ali:"open" },
+    { who:"anne", cmd:"xper update -g",            note:"pull every version",           key:"Ali",  anne:"lock" },
+    { who:"anne", cmd:"xper jump v2.1 -u Ali",     note:"same branch, read-only",       key:"Ali",  anne:"lock" },
+    { who:"anne", cmd:"xper acquire",              note:"Ali has not released it",      key:"Ali",  anne:"lock", denied:1 },
+    { who:"ali",  cmd:'echo "hello world" > text', note:"fine, Ali holds the key",      key:"Ali",  ali:"open" },
+    { who:"ali",  cmd:"xper backup",               note:"push the work",                key:"Ali",  ali:"open" },
+    { who:"ali",  cmd:"xper release",              note:"the key goes back",            key:"",     ali:"lock" },
+    { who:"ali",  cmd:'echo "hello" > text',       note:"locked again",                 key:"",     ali:"lock", denied:1 },
+    { who:"anne", cmd:"xper acquire",              note:"now Anne can take it",         key:"Anne", anne:"open" },
+    { who:"anne", cmd:'echo "bye" > text',         note:"Anne's turn",                  key:"Anne", anne:"open" },
+    { who:"anne", cmd:"xper release",              note:"and hands it back",            key:"",     anne:"lock" }
+  ];
+
+  var seqFig = document.getElementById("seq-fig");
+  if (seqFig) (function () {
+    var bodies = { ali: document.getElementById("lane-ali-body"),
+                   anne: document.getElementById("lane-anne-body") };
+    var lanes  = { ali: document.getElementById("lane-ali"),
+                   anne: document.getElementById("lane-anne") };
+    var holder = document.getElementById("seq-holder");
+    var keybar = document.getElementById("seq-keybar");
+    var seqTimer = null;
+    var rows = [];
+
+    SEQ.forEach(function (st, i) {
+      var el = document.createElement("span");
+      el.className = "line" + (st.denied ? " denied" : "");
+      el.setAttribute("data-on", "0");
+      var c = document.createElement("span");
+      c.className = "lc"; c.textContent = st.cmd; el.appendChild(c);
+      if (st.note) {
+        var n = document.createElement("span");
+        n.className = "ln"; n.textContent = st.note; el.appendChild(n);
+      }
+      bodies[st.who].appendChild(el);
+      rows.push(el);
+    });
+
+    function seqShow(idx) {
+      var key = "", aliLock = "lock", anneLock = "lock", anneSeen = false;
+      for (var j = 0; j <= idx; j++) {
+        var st = SEQ[j];
+        key = st.key;
+        if (st.ali)  aliLock  = st.ali;
+        if (st.anne) { anneLock = st.anne; anneSeen = true; }
+        if (st.who === "anne") anneSeen = true;
+      }
+      rows.forEach(function (el, j) {
+        el.setAttribute("data-on", j <= idx ? "1" : "0");
+        el.setAttribute("data-current", j === idx ? "1" : "0");
+      });
+      lanes.ali.setAttribute("data-lock", aliLock);
+      lanes.anne.setAttribute("data-lock", anneLock);
+      if (anneSeen) lanes.anne.removeAttribute("data-absent");
+      else lanes.anne.setAttribute("data-absent", "1");
+      holder.textContent = key || "no one";
+      holder.setAttribute("data-held", key ? "1" : "0");
+      keybar.setAttribute("data-held", key ? "1" : "0");
+    }
+
+    function seqStop() { if (seqTimer) { clearInterval(seqTimer); seqTimer = null; } }
+    function seqPlay() {
+      seqStop();
+      var i = 0; seqShow(0);
+      seqTimer = setInterval(function () {
+        i++;
+        if (i >= SEQ.length) { seqStop(); return; }
+        seqShow(i);
+      }, 1000);
+    }
+
+    var sr = document.getElementById("seq-replay");
+    if (sr) sr.addEventListener("click", seqPlay);
+    seqShow(SEQ.length - 1);
+
+    /* ---- mode switch ---- */
+    var bN = document.getElementById("mode-normal-btn");
+    var bS = document.getElementById("mode-seq-btn");
+    var pN = document.getElementById("mode-normal");
+    var pS = document.getElementById("mode-seq");
+    var seqPlayed = false;
+
+    function pick(seqMode) {
+      bN.setAttribute("aria-pressed", seqMode ? "false" : "true");
+      bS.setAttribute("aria-pressed", seqMode ? "true" : "false");
+      pN.hidden = seqMode;
+      pS.hidden = !seqMode;
+      if (seqMode) {
+        stop();
+        if (!reduce && !seqPlayed) { seqPlayed = true; seqPlay(); }
+      } else {
+        seqStop();
+      }
+    }
+    bN.addEventListener("click", function () { pick(false); });
+    bS.addEventListener("click", function () { pick(true); });
+  })();
 })();

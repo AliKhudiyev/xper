@@ -68,9 +68,8 @@
 
     <div class="code with-copy" style="max-width:620px">
       <button class="copy" type="button">copy</button>
-<pre><span class="c-prompt">$</span> git clone https://github.com/AliKhudiyev/xper.git ~/.xper
-<span class="c-prompt">$</span> ln -s ~/.xper/xper.sh ~/.xper/xper
-<span class="c-prompt">$</span> echo <span class="c-str">'export PATH="$HOME/.xper:$PATH"'</span> &gt;&gt; ~/.zshrc &amp;&amp; exec zsh</pre>
+<pre><span class="c-prompt">$</span> git clone https://github.com/AliKhudiyev/xper.git
+<span class="c-prompt">$</span> cd xper &amp;&amp; ./install.sh</pre>
     </div>
   </div>
 </section>
@@ -95,10 +94,24 @@
 <section id="tree">
   <div class="wrap">
     <p class="sec-label">02 &mdash; how it works</p>
-    <h2 class="sec-title">The tree is the point</h2>
+    <h2 class="sec-title">Two ways to run a version</h2>
     <p class="sec-lede">
-      Every version is a git branch, and its number is its address. Step through a real session
-      and watch the tree it builds.
+      Every version is a git branch, and its number is its address. Each one runs in one of two
+      modes: <strong>normal</strong>, where it is yours alone, or <strong>supervisional</strong>,
+      where a group shares it one writer at a time.
+    </p>
+
+    <div class="mode-switch" role="group" aria-label="Choose a mode">
+      <button type="button" id="mode-normal-btn" aria-pressed="true"  aria-controls="mode-normal">normal</button>
+      <button type="button" id="mode-seq-btn"    aria-pressed="false" aria-controls="mode-seq">supervisional</button>
+    </div>
+
+    <div class="mode-panel" id="mode-normal">
+    <h3>Your own lineage</h3>
+    <p class="mode-lede">
+      A normal version belongs to whoever made it. Anyone else who builds on it gets their own
+      copy &mdash; the original stays read-only for them, so your results cannot be edited out
+      from under you. Step through a real session and watch the tree it builds.
     </p>
 
     <figure class="fig" id="tree-fig">
@@ -169,6 +182,68 @@
       <b>Nothing is overwritten, and the number tells you where you are</b> &mdash; no naming
       scheme to invent, and none to abandon by week three.
     </p>
+    </div><!-- /mode-normal -->
+
+    <div class="mode-panel" id="mode-seq" hidden>
+    <h3>One writer at a time</h3>
+    <p class="mode-lede">
+      Sometimes a version is a shared workspace rather than a personal one &mdash; a run you and
+      a collaborator are tuning together. Create it with <code>-sl</code> and it comes up
+      read-only for everybody. A single <em>write key</em> lives in the repo: take it with
+      <code>xper acquire</code>, hand it back with <code>xper release</code>. Whoever holds it
+      is the only one whose directory is unlocked.
+    </p>
+
+    <figure class="fig" id="seq-fig">
+      <div class="seq-wrap">
+        <div class="keybar" id="seq-keybar" data-held="0">
+          <span class="kb-branch">v2.1</span>
+          <span class="kb-mode">supervisional</span>
+          <span class="kb-key">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.9 12.1 20 3M17 6l2.5 2.5M14.5 8.5 17 11"/></svg>
+            write key
+            <span class="kb-holder" id="seq-holder" data-held="0">no one</span>
+          </span>
+        </div>
+
+        <div class="lanes">
+          <div class="lane" id="lane-ali" data-lock="lock">
+            <div class="lane-head">
+              <span class="who">Ali</span>
+              <span class="badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+                <span class="lbl-lock">locked</span><span class="lbl-open">writable</span>
+              </span>
+            </div>
+            <div class="lane-body" id="lane-ali-body"></div>
+          </div>
+
+          <div class="lane" id="lane-anne" data-lock="lock" data-absent="1">
+            <div class="lane-head">
+              <span class="who">Anne</span>
+              <span class="badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+                <span class="lbl-lock">locked</span><span class="lbl-open">writable</span>
+              </span>
+            </div>
+            <div class="lane-body" id="lane-anne-body"></div>
+          </div>
+        </div>
+
+        <div class="tree-bar">
+          <button class="replay" id="seq-replay" type="button">&#9654; replay</button>
+          <span class="hint">two people, one branch, one key</span>
+        </div>
+      </div>
+      <figcaption class="fig-cap"><b>Fig. 2</b> &mdash; the write key changing hands</figcaption>
+    </figure>
+
+    <p class="takeaway">
+      The lock is a real filesystem lock, not a convention. <b>Without the key your working tree
+      is read-only</b> &mdash; your editor, your scripts and a stray <code>rm</code> are all
+      refused until you take your turn.
+    </p>
+    </div><!-- /mode-seq -->
   </div>
 </section>
 
@@ -389,6 +464,7 @@ zsh: permission denied: train.py
           <tr><td><code>xper new <span class="c-flag">--tag</span> &lt;tag&gt;</code></td><td>Label the new version. Also <code>-t</code>.</td></tr>
           <tr><td><code>xper new <span class="c-flag">--scratch</span></code></td><td>Start a new top-level version (<code>v2</code>, <code>v3</code>&hellip;) from your base branch instead of from where you are &mdash; it carries none of the current lineage&rsquo;s work. Also <code>-s</code>.</td></tr>
           <tr><td><code>xper new <span class="c-flag">--yes</span></code></td><td>Create the version even when the parent shows no committed difference. You will reach for this often &mdash; see the note below. Also <code>-y</code>.</td></tr>
+          <tr><td><code>xper new <span class="c-flag">-sl</span></code></td><td>Create the version in <strong>supervisional</strong> mode instead of normal &mdash; shared, and read-only until someone takes the write key. Add <code>--acquire</code> to take it straight away.</td></tr>
           <tr><td><code>xper delete</code></td><td>Delete the current version and every subversion beneath it, then return to base. Also <code>del</code>.</td></tr>
 
           <tr class="group"><td colspan="2">Navigating</td></tr>
@@ -416,12 +492,16 @@ zsh: permission denied: train.py
 
           <tr class="group"><td colspan="2">Collaborating</td></tr>
           <tr><td><code>xper backup</code></td><td>Push your work to the remote.</td></tr>
-          <tr><td><code>xper update</code></td><td>Pull in what your collaborators did.</td></tr>
+          <tr><td><code>xper update</code></td><td>Pull in what your collaborators did on this version.</td></tr>
+          <tr><td><code>xper update <span class="c-flag">-g</span></code></td><td>Pull every version from the remote, tracking branches you don&rsquo;t have yet, so you can jump to anyone&rsquo;s work. Also <code>--global</code>.</td></tr>
+
+          <tr class="group"><td colspan="2">Supervisional mode</td></tr>
+          <tr><td><code>xper acquire</code></td><td>Take the write key on a supervisional version. Your working tree unlocks, and the holder is recorded in the repo for everyone else to see.</td></tr>
+          <tr><td><code>xper release</code></td><td>Hand the key back. Your work is pushed and your tree locks again, freeing the version for the next person.</td></tr>
 
           <tr class="group"><td colspan="2">Lifecycle</td></tr>
           <tr><td><code>xper finish</code></td><td>Lock the current version: the working tree becomes read-only on disk, and the version is backed up if a remote is set.</td></tr>
           <tr><td><code>xper modify</code></td><td>Unlock the current version for editing again. Only its owner can.</td></tr>
-          <tr><td><code>xper acquire</code> / <code>xper release</code></td><td>In sequential mode (<code>xper new -sl</code>), take and hand back the single write key so only one person edits at a time.</td></tr>
           <tr><td><code>xper help</code></td><td>Print the full command list.</td></tr>
 
         </tbody>
@@ -436,6 +516,7 @@ zsh: permission denied: train.py
         <li><strong>Your edits land on the version you are leaving.</strong> <code>xper new</code> snapshots the current version and hands you a fresh copy to work in, so the change you just made belongs to the parent.</li>
         <li><strong><code>--scratch</code> branches from base, not from where you are.</strong> That&rsquo;s the point: it detaches from the current lineage. It is a copy of your base branch, so it is empty only if your base was.</li>
         <li><strong>Version numbers are never reused.</strong> Delete <code>v1</code> and the next <code>--scratch</code> still gives you the next unused number, so an address always means one thing.</li>
+        <li><strong>Every version has a mode.</strong> Normal by default &mdash; yours alone, and anyone else who builds on it gets their own copy. Supervisional (<code>xper new -sl</code>) makes it a shared workspace with one write key, passed by hand with <code>acquire</code> and <code>release</code>.</li>
         <li><strong>Your username prefixes every branch.</strong> Your git <code>user.name</code> with spaces removed, so <code>v1.1</code> is really the branch <code>ADALOVELACE_v1.1</code>.</li>
       </ul>
     </div>
@@ -456,13 +537,14 @@ zsh: permission denied: train.py
         <h3># install</h3>
         <div class="code with-copy">
           <button class="copy" type="button">copy</button>
-<pre><span class="c-prompt">$</span> git clone https://github.com/AliKhudiyev/xper.git ~/.xper
-<span class="c-prompt">$</span> ln -s ~/.xper/xper.sh ~/.xper/xper
-<span class="c-prompt">$</span> echo <span class="c-str">'export PATH="$HOME/.xper:$PATH"'</span> &gt;&gt; ~/.zshrc &amp;&amp; exec zsh</pre>
+<pre><span class="c-prompt">$</span> git clone https://github.com/AliKhudiyev/xper.git
+<span class="c-prompt">$</span> cd xper &amp;&amp; ./install.sh</pre>
         </div>
         <p>
-          Using bash rather than zsh? Write to <code>~/.bashrc</code> instead. The whole repo
-          needs to be on <code>PATH</code> &mdash; the scripts call each other by name.
+          Installs to <code>~/.local</code> &mdash; no sudo, and nothing is written outside the
+          prefix. Use <code>--prefix DIR</code> to put it somewhere else, and
+          <code>--uninstall</code> to remove it later. If <code>~/.local/bin</code> isn&rsquo;t on
+          your <code>PATH</code>, the installer prints the line to add.
         </p>
       </div>
 
@@ -471,13 +553,15 @@ zsh: permission denied: train.py
         <div class="code">
 <pre><span class="c-prompt">$</span> mkdir demo &amp;&amp; cd demo
 <span class="c-prompt">$</span> xper init
+[xper_init] initalized with username [ADALOVELACE]
 <span class="c-prompt">$</span> echo <span class="c-str">"print('hi')"</span> &gt; train.py
 <span class="c-prompt">$</span> xper new <span class="c-flag">--tag</span> first
 <span class="c-prompt">$</span> git branch --show-current
 ADALOVELACE_v1</pre>
         </div>
         <p>
-          Requires <code>git</code> and <code>bash</code>, plus the usual POSIX tools. Tested on
+          Needs <code>git</code> 2.22 or newer, <code>bash</code>, and a
+          <code>user.name</code> in your git config &mdash; xper builds branch names from it.
           macOS and Linux.
         </p>
       </div>
