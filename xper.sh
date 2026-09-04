@@ -125,6 +125,7 @@ OPTARG_VERSION_TARGET=""
 OPTARG_REMOTE_URL=""
 OPTARG_VERSIONS="v*"
 OPTARG_WORKERS=1
+OPTARG_OUTPUT_DIR=""
 OPTARG_SUBCMD=""
 
 while [[ $# -gt 0 ]]; do
@@ -305,6 +306,13 @@ while [[ $# -gt 0 ]]; do
 			fi
 			shift
 			;;
+		-o|--output)
+			if [[ $# -ge 2 ]]; then
+				OPTARG_OUTPUT_DIR=$2
+				shift
+			fi
+			shift
+			;;
 		*)
 			OPTARG_SUBCMD=$1
 			OPTARG_FILEPATH=$1
@@ -414,7 +422,7 @@ case $CMD in
 		xper_broadcast.sh "$OPTARG_FILEPATH" "$OPTARG_VERSIONS" "$FLAG_GLOBAL" "$OPTARG_USER"
 		;;
 	run)
-		xper_run.sh "$OPTARG_SUBCMD" "$OPTARG_VERSIONS" "$FLAG_GLOBAL" "$OPTARG_USER" "$OPTARG_WORKERS"
+		xper_run.sh "$OPTARG_SUBCMD" "$OPTARG_VERSIONS" "$FLAG_GLOBAL" "$OPTARG_USER" "$OPTARG_WORKERS" "$OPTARG_OUTPUT_DIR" "$FLAG_CLEAR"
 		;;
 	clean)
 		xper_clean.sh

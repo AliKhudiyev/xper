@@ -1,6 +1,6 @@
 # xper -- eXPERiment tracking and management tool for terminal
 
-It’s git, specialized for research iteration. Every experiment’s name is its ancestry — v1.1.2 is the second thing you tried on top of v1.1, which came from v1. You can read the lineage without looking anything up. Every version is a git branch, and its number is its address. Each one runs in one of two modes: **normal**, where it is yours alone, or **supervisional**, where a group shares it one writer at a time. If bug fix of feature deployed in `v{X}.{Y}` happens after deploying `v{X+n}.{Y}`, then the new release becomes `v{X+n}.{Y+1}`.
+It’s git, specialized for research iteration. Every experiment’s name is its ancestry — v1.1.2 is the second thing you tried on top of v1.1, which came from v1. You can read the lineage without looking anything up. Every version is a git branch, and its number is its address. Each one runs in one of two modes: **normal**, where it is yours alone, or **supervisional**, where a group shares it one writer at a time. 
 
 ## No more merge conflicts
 
@@ -36,7 +36,7 @@ You can uninstall by running:
 
 But if you decide to uninstall `xper`, please let me know how `xper` can be improved further so that you could potentially start using it again.
 
-Release version semantics is easy and simple: `xper-vX.Y`. `X` increases by 1 each time there is one or more new features introduced to `xper` that didn't existed before (this also includes new command-line options/flags for `xper` commands), and `Y` increases by one each time there is a bug fix in the feature set of `xper-vX`.
+Release version semantics is easy and simple: `xper-vX.Y`. `X` increases by 1 each time there is one or more new features introduced to `xper` that didn't existed before (this also includes new command-line options/flags for `xper` commands), and `Y` increases by one each time there is a bug fix in the feature set of `xper-vX`. If bug fix of feature deployed in `v{X}.{Y}` happens after deploying `v{X+n}.{Y}`, then the new release becomes `v{X+n}.{Y+1}`.
 
 ### TODO - v1
 
