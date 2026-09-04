@@ -110,6 +110,9 @@ FLAG_SWAP=0
 FLAG_ONLYLEAF=0
 FLAG_ACQUIRE=0
 FLAG_RELEASE=0
+FLAG_SORT=0
+FLAG_CTIME=0
+FLAG_MTIME=0
 
 OPTARG_TAG=""
 OPTARG_USER=$(xper_user.sh)
@@ -120,12 +123,20 @@ OPTARG_FILEPATH=""
 OPTARG_VERSION_SOURCE="$(xper_version.sh 1)"
 OPTARG_VERSION_TARGET=""
 OPTARG_REMOTE_URL=""
+OPTARG_VERSIONS="v*"
+OPTARG_WORKERS=1
 OPTARG_SUBCMD=""
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-		-s|--scratch)
+		-s|--scratch|--sort)
 			FLAG_SCRATCH=1
+			FLAG_SORT=1
+			if [[ "$1" == "--sort" ]]; then
+				FLAG_SCRATCH=0
+			elif [[ "$1" == "--scratch" ]]; then
+				FLAG_SORT=0
+			fi
 			shift
 			;;
 		-t|--tag)
@@ -174,7 +185,7 @@ while [[ $# -gt 0 ]]; do
 			FLAG_NORMAL_MODE=1
 			shift
 			;;
-		-sl|--sequential)
+		-sl|--sequential|--supervisional)
 			FLAG_NORMAL_MODE=0
 			shift
 			;;
@@ -247,6 +258,14 @@ while [[ $# -gt 0 ]]; do
 			FLAG_ONLYLEAF=1
 			shift
 			;;
+		-ct)
+			FLAG_CTIME=1
+			shift
+			;;
+		-mt)
+			FLAG_MTIME=1
+			shift
+			;;
 		--acquire)
 			FLAG_ACQUIRE=1
 			FLAG_RELEASE=0
@@ -268,6 +287,20 @@ while [[ $# -gt 0 ]]; do
 		--by)
 			if [[ $# -ge 2 ]]; then
 				OPTARG_SORTBY=$2
+				shift
+			fi
+			shift
+			;;
+		-v|--to)
+			if [[ $# -ge 2 ]]; then
+				OPTARG_VERSIONS=$2
+				shift
+			fi
+			shift
+			;;
+		--workers)
+			if [[ $# -ge 2 ]]; then
+				OPTARG_WORKERS=$2
 				shift
 			fi
 			shift
@@ -336,7 +369,7 @@ case $CMD in
 				FORWARD=1
 				STEPS=$(($OPTARG_FORWARD_STEPS-$OPTARG_BACKWARD_STEPS))
 			fi
-			xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST"
+			xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST" "$FLAG_SORT" "$FLAG_CTIME" "$FLAG_MTIME"
 		fi
 		;;
 	diff)
@@ -346,11 +379,11 @@ case $CMD in
 			if [[ $OPTARG_BACKWARD_STEPS -gt $OPTARG_FORWARD_STEPS ]]; then
 				FORWARD=0
 				STEPS=$(($OPTARG_BACKWARD_STEPS-$OPTARG_FORWARD_STEPS))
-				xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST"
+				xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST" "$FLAG_SORT" "$FLAG_CTIME" "$FLAG_MTIME"
 			else
 				FORWARD=1
 				STEPS=$(($OPTARG_FORWARD_STEPS-$OPTARG_BACKWARD_STEPS))
-				xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST"
+				xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST" "$FLAG_SORT" "$FLAG_CTIME" "$FLAG_MTIME"
 			fi
 			version=$(git branch --show-current)
 			version_num=$(echo $current_version | rev | cut -d '_' -f 1 | rev)
@@ -372,10 +405,16 @@ case $CMD in
 		xper_owner.sh
 		;;
 	sort)
-		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER" "$FLAG_ONLYLEAF" "$FLAG_YES"
+		xper_sort.sh "$OPTARG_SORTBY" "$FLAG_GLOBAL" "$OPTARG_USER" "$FLAG_ONLYLEAF" "$FLAG_YES" "$FLAG_CTIME" "$FLAG_MTIME"
 		;;
 	index)
 		xper_index.sh "$FLAG_CLEAR" "$FLAG_ADD" "$FLAG_REMOVE" "$OPTARG_VERSION_SOURCE" "$FLAG_AFTER" "$FLAG_BEFORE" "$FLAG_SWAP" "$OPTARG_VERSION_TARGET"
+		;;
+	broadcast)
+		xper_broadcast.sh "$OPTARG_FILEPATH" "$OPTARG_VERSIONS" "$FLAG_GLOBAL" "$OPTARG_USER"
+		;;
+	run)
+		xper_run.sh "$OPTARG_SUBCMD" "$OPTARG_VERSIONS" "$FLAG_GLOBAL" "$OPTARG_USER" "$OPTARG_WORKERS"
 		;;
 	clean)
 		xper_clean.sh

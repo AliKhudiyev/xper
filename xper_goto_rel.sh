@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: xper_goto_rel.sh FLAG_GLOBAL FLAG_WRAP FLAG_FORWARD INT_STEPS STR_USER FLAG_FIRST FLAG_LAST
+# usage: xper_goto_rel.sh FLAG_GLOBAL FLAG_WRAP FLAG_FORWARD INT_STEPS STR_USER FLAG_FIRST FLAG_LAST FLAG_SORT FLAG_CTIME FLAG_MTIME
 
 GLOBAL=$1
 WRAP=$2
@@ -8,6 +8,9 @@ STEPS=$4
 USER=$5
 FIRST=$6
 LAST=$7
+SORT=$8
+CTIME=$9
+MTIME=${10}
 
 USERNAME=$(xper_user.sh)
 CURRENT_VERSION=$(xper_version.sh 1)
@@ -16,29 +19,32 @@ ROOT_DIR=$(xper_rootdir.sh)
 INDEX_FP=$ROOT_DIR/.index
 
 include=".+_v[0-9].*"
-if [[ $USER == "" ]]; then
+if [[ $USER == "" && $GLOBAL -ne 1 ]]; then
 	USER=$USERNAME
 fi
 # if [[ $CURRENT_VERSION == $USERNAME ]]; then 
 # 	include=".+"
 # fi
 
-if [[ ! -e $INDEX_FP ]]; then
-	xper_sort.sh
+if [[ ! -f $INDEX_FP || $SORT -eq 1 ]]; then
+	xper_sort.sh "" "$GLOBAL" "$USER" "0" "$SORT" "$CTIME" "$MTIME"
 # else
 # 	echo index already exists
 fi
 
-versions=($(cat $INDEX_FP | grep -E "$include"))
+versions=($(cat $INDEX_FP | grep -E "$include" | grep -E "$USER.*"))
+
+# TO BE DELETED
+# if [[ $GLOBAL -eq 1 ]]; then
+# 	versions=($(cat $INDEX_FP | grep -E "$include"))
+# else # $GLOBAL -ne 1
+# 	# versions=($(cat $INDEX_FP | grep -E "$USER.*"))
+# 	# uncomment line above (with $include) if you want stricter USERNAME matching
+# fi
+
 # target_version=$CURRENT_VERSION
 target_version=$(echo ${versions[@]: -1} | cut -d '|' -f 1)
 # echo default target_version=$target_version
-
-if [[ $GLOBAL -eq 0 ]]; then
-	# versions=($(cat $INDEX_FP | grep -E "$USER.*"))
-	versions=($(cat $INDEX_FP | grep -E "$include" | grep -E "$USER.*"))
-	# uncomment line above (with $include) if you want stricter USERNAME matching
-fi
 
 # echo versions=${#versions[@]}
 # echo ${versions[@]}
@@ -47,7 +53,7 @@ if [[ ${#versions[@]} -eq 0 ]]; then
 	exit 0
 fi
 
-[[ $WRAP -eq 1 ]] && STEPS=$(($4 % ${#versions[@]}))
+[[ $WRAP -eq 1 ]] && STEPS=$(($STEPS % ${#versions[@]}))
 # echo $STEPS steps
 
 # echo version count is ${#versions[@]}
@@ -70,7 +76,7 @@ elif [[ $LAST -eq 1 ]]; then
 		target_version=$(cat $INDEX_FP | grep -E "$include"| grep -E "$USER*" | tail -1 | cut -d '|' -f 1)
 	fi
 else
-	for i in ${!versions[@]}; do
+	for ((i=0; i<${#versions[@]}; ++i)); do
 		version=$(echo ${versions[i]} | cut -d '|' -f 1)
 		current=$CURRENT_VERSION
 		# echo current=$current and version=${version}

@@ -4,4 +4,4 @@ USERNAME=$(git config --global user.name | tr -d ' ')
 BASE=${USERNAME}
 NODE=$(git branch --show-current)
 
-git branch --list "${NODE}.*" | grep -vE "${NODE}\..*\..*"
+git branch --list "${NODE}.*" | grep -vE "${NODE}\..*\..*" | tr -d ' '

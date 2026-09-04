@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: xper_sort STR_SORTBY FLAG_GLOBAL STR_USER FLAG_ONLYLEAF FLAG_YES
+# usage: xper_sort STR_SORTBY FLAG_GLOBAL STR_USER FLAG_ONLYLEAF FLAG_YES FLAG_CTIME FLAG_MTIME
 
 USERNAME=$(xper_user.sh)
 CURRENT_VERSION=$(xper_version.sh 1)
@@ -12,9 +12,11 @@ PUSHLOCKED=$(xper_locked.sh)
 
 SORTBY=$1
 GLOBAL=$2
-USER=$3; [[ $USER == "" ]] && USER=$USERNAME
+USER=$3; [[ $USER == "" && $GLOBAL -ne 1 ]] && USER=$USERNAME
 ONLYLEAF=$4
 YES=$5
+CTIME=$6
+MTIME=$7
 RECURSIVE_SORT=0
 
 if [[ $YES -eq 1 ]]; then
@@ -53,11 +55,21 @@ fi
 rm $INDEX_FP 2>/dev/null
 
 if [[ $SORTBY == "" ]]; then
-	for head in $(cat ${HEADS_DIR}_filtered); do
-		version=$(xper_get_version.sh "$head")
-		echo "$head|$version" >> $INDEX_FP
-	done
-	cat $INDEX_FP | sort -t '|' -k 2 -V -o $INDEX_FP
+	if [[ $CTIME -eq 1 ]]; then
+		for head in $(cat ${HEADS_DIR}_filtered); do
+			ctime=$(xper_ctx.sh created)
+			echo "$head|$ctime" >> $INDEX_FP
+		done
+		cat $INDEX_FP | sort -t '|' -k 2 -V -o $INDEX_FP
+	elif [[ $MTIME -eq 1 ]]; then
+		git branch --list "${USER}*" --sort=committerdate --format="%(committerdate:iso) %(refname:short)" | sed -E "s/(.+) (.+) (.+) (.+)/\4\|\1_\2_\3/g" > $INDEX_FP
+	else
+		for head in $(cat ${HEADS_DIR}_filtered); do
+			version=$(xper_get_version.sh "$head")
+			echo "$head|$version" >> $INDEX_FP
+		done
+		cat $INDEX_FP | sort -t '|' -k 2 -V -o $INDEX_FP
+	fi
 else
 	for head in $(cat ${HEADS_DIR}_filtered); do
 		version=$(xper_get_version.sh "$head")

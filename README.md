@@ -1,24 +1,44 @@
 # xper -- eXPERiment tracking and management tool for terminal
 
-```bash
-$ xper init
-$ xper new --scratch --tag hello
- # v1_bob node has been created
-$ echo "print('hello')" >> hello.py
-$ xper backup
- # pushed everything to the v1_bob remote node
+It’s git, specialized for research iteration. Every experiment’s name is its ancestry — v1.1.2 is the second thing you tried on top of v1.1, which came from v1. You can read the lineage without looking anything up. Every version is a git branch, and its number is its address. Each one runs in one of two modes: **normal**, where it is yours alone, or **supervisional**, where a group shares it one writer at a time. If bug fix of feature deployed in `v{X}.{Y}` happens after deploying `v{X+n}.{Y}`, then the new release becomes `v{X+n}.{Y+1}`.
 
-$ xper update
- # pulled everything from remote node
-$ xper goto v1_bob
- # v1_bob is the active node
-$ xper new --tag hello_bye
- # v1_bob.1_bob node has been created with the copy of v1_bob data
-$ echo "print('bye')" >> hello.py
-$ xper backup
+## No more merge conflicts
+
+Both `normal` mode and `supervisional` mode have been designed to avoid merge conflicts in two possible ways:
+
+- `Normal` mode dodges merge conflicts by creating new branches.
+- `Sequential` mode breaks the spirit of merge conflicts by allowing only one writer at a time to push.
+
+`xper` operates on `normal` mode by default, and here's how it works:
+
+![xper in normal mode](docs/xper-normal-mode.gif)
+
+You can switch to `supervisional` or `sequential` mode by running `xper new -sl [options]` command. Here is how supervisional mode works:
+
+![xper in supervisional mode](docs/xper-supervisional-mode.gif)
+
+You may have some versions (git branches) working on a normal mode and some other versions working on a supervisional mode within the same repository. `xper` cleverly keeps track of everything and gives you immediate feedback whenever you try something wild. However, this is the important part: **it does NOT make you throw away your project and start learning deep internal working mechanisms of the management tool itself -- like git does.**
+
+## Installation & Releases
+
+Run the installation script to install xper:
+
+```bash
+git clone https://github.com/AliKhudiyev/xper.git
+cd xper && ./install.sh
 ```
 
-## TODO - v1
+You can uninstall by running:
+
+```bash
+./install --uninstall
+```
+
+But if you decide to uninstall `xper`, please let me know how `xper` can be improved further so that you could potentially start using it again.
+
+Release version semantics is easy and simple: `xper-vX.Y`. `X` increases by 1 each time there is one or more new features introduced to `xper` that didn't existed before (this also includes new command-line options/flags for `xper` commands), and `Y` increases by one each time there is a bug fix in the feature set of `xper-vX`.
+
+### TODO - v1
 
 - ~Fix `xper new` and make options work.~
 - ~Remove `lock` and `unlock`; use `finish` and `modify` properly instead~
@@ -44,7 +64,7 @@ $ xper backup
     - ~Implement `xper index [-rm|--remove] [<version>]]` to remove the version from the index file.~
     - ~Implement `xper index <vXX> [--after|--before|--swap <vXY>] to reorder the index file entries `vXX` and `vXY` accordingly.~
 
-## TODO - v2
+### TODO - v2
 - Add `xper gitify` and `xperify` commands to convett an xper repo to git repo and an already existing git repo to an xper repo.
 - Webify xper repo by
     - Showing reference counts
@@ -54,6 +74,7 @@ $ xper backup
         - `xper jump [-ct|-mt] [jump-options]` executes `xper sort [-ct|-mt]` first, then `xper jump [jump-options]`.
             - In fact, `xper jump [-s|sort-options] [jump-options]` always run `xper sort [sort-options]` first (if index file doesn't exist of `-s` flag is present), and then `xper jump [jump-options]`.
         - [no need; `sort -ct` kinda does this] `xper sort -ref` to sort based on true references.
-- Add `xper broadcast <file> --to <vXX**>` to broadcast a file to (1) vXX only -- `<vXX>`, or (2) vXXY for all Y -- `<vXX*>`, or (3) vXXY...Z for all Y...Z -- `<vXX**>`.
-- Add `xper run <script> --version <vXX**> --workers <n>` to run script in implied versions accordingly (similar to `xper broadcast <file> --to <vXX**>`) with up to `n` workers at a time.
+- Add `xper broadcast <file> --to <vXX**> [-g|-u <user>]` to broadcast a file to (1) vXX only -- `<vXX>`, or (2) vXXY for all Y -- `<vXX*>`, or (3) vXXY...Z for all Y...Z -- `<vXX**>`.
+- Add `xper run <script> --version <vXX**> [-g|-u <user>] --workers <n>` to run script in implied versions accordingly (similar to `xper broadcast <file> --to <vXX**>`) with up to `n` workers at a time.
+- Write tests for all of these new features.
 

@@ -134,6 +134,7 @@ fi
 
 if [[ $success -eq 1 ]]; then
 	xper_ctx.sh tag $TAG
+	xper_ctx.sh created "$(date +'%Y-%m-%d_%H:%M:%S_%z')"
 	xper.sh modify --yes
 	# echo "[xper_new] mode processing..."
 	if [[ $NORMALMODE -eq 0 ]]; then

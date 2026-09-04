@@ -16,6 +16,7 @@ else
 fi
 
 
+# v1.0 tests
 ./test_xper_init.sh &&    # done
 ./test_xper_new.sh &&     # done
 ./test_xper_delete.sh     # done
@@ -31,3 +32,9 @@ fi
 ./test_xper_modify.sh &&  # done
 ./test_xper_clean.sh &&   # done
 ./test_xper_aux.sh        # owner, user, ref, ctx, logfile, parent, children, remote, track, untrack
+
+# v2.0 tests
+./test_xperify.sh &&         # 
+./test_xper_gitify.sh &&     # 
+./test_xper_broadcast.sh &&  # 
+./test_xper_run.sh           # 
