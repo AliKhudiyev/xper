@@ -113,6 +113,8 @@ FLAG_RELEASE=0
 FLAG_SORT=0
 FLAG_CTIME=0
 FLAG_MTIME=0
+FLAG_PARENT=0
+FLAG_REFERENCE=0
 
 OPTARG_TAG=""
 OPTARG_USER=$(xper_user.sh)
@@ -313,6 +315,24 @@ while [[ $# -gt 0 ]]; do
 			fi
 			shift
 			;;
+		-par|--parent)
+			FLAG_PARENT=1
+			FLAG_REFERENCE=0
+			if [[ $# -ge 2 ]]; then
+				OPTARG_BACKWARD_STEPS=$2
+				shift
+			fi
+			shift
+			;;
+		-ref|--reference)
+			FLAG_REFERENCE=1
+			FLAG_PARENT=0
+			if [[ $# -ge 2 ]]; then
+				OPTARG_BACKWARD_STEPS=$2
+				shift
+			fi
+			shift
+			;;
 		*)
 			OPTARG_SUBCMD=$1
 			OPTARG_FILEPATH=$1
@@ -377,7 +397,7 @@ case $CMD in
 				FORWARD=1
 				STEPS=$(($OPTARG_FORWARD_STEPS-$OPTARG_BACKWARD_STEPS))
 			fi
-			xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST" "$FLAG_SORT" "$FLAG_CTIME" "$FLAG_MTIME"
+			xper_goto_rel.sh "$FLAG_GLOBAL" "$FLAG_WRAP" "$FORWARD" "$STEPS" "$OPTARG_USER" "$FLAG_FIRST" "$FLAG_LAST" "$FLAG_SORT" "$FLAG_CTIME" "$FLAG_MTIME" "$FLAG_PARENT" "$FLAG_REFERENCE"
 		fi
 		;;
 	diff)

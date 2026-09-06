@@ -65,16 +65,34 @@ Release version semantics is easy and simple: `xper-vX.Y`. `X` increases by 1 ea
     - ~Implement `xper index <vXX> [--after|--before|--swap <vXY>] to reorder the index file entries `vXX` and `vXY` accordingly.~
 
 ### TODO - v2
-- Add `xper gitify` and `xperify` commands to convett an xper repo to git repo and an already existing git repo to an xper repo.
+- ~Add `xper gitify` and `xperify` commands to convett an xper repo to git repo and an already existing git repo to an xper repo.~
 - Webify xper repo by
     - Showing reference counts
     - Searching for similar experiments based on references.
-    - Counting linear version increments based on the time of version creation (as opposed to version ancestry).
-        - `xper sort [-ct|-mt] [sort-options]` for sorting based on the creation/modification timestamps.
-        - `xper jump [-ct|-mt] [jump-options]` executes `xper sort [-ct|-mt]` first, then `xper jump [jump-options]`.
-            - In fact, `xper jump [-s|sort-options] [jump-options]` always run `xper sort [sort-options]` first (if index file doesn't exist of `-s` flag is present), and then `xper jump [jump-options]`.
-        - [no need; `sort -ct` kinda does this] `xper sort -ref` to sort based on true references.
-- Add `xper broadcast <file> --to <vXX**> [-g|-u <user>]` to broadcast a file to (1) vXX only -- `<vXX>`, or (2) vXXY for all Y -- `<vXX*>`, or (3) vXXY...Z for all Y...Z -- `<vXX**>`.
-- Add `xper run <script> --version <vXX**> [-g|-u <user>] --workers <n>` to run script in implied versions accordingly (similar to `xper broadcast <file> --to <vXX**>`) with up to `n` workers at a time.
+    - ~Counting linear version increments based on the time of version creation (as opposed to version ancestry).~
+        - ~`xper sort [-ct|-mt] [sort-options]` for sorting based on the creation/modification timestamps.~
+        - ~`xper jump [-ct|-mt] [jump-options]` executes `xper sort [-ct|-mt]` first, then `xper jump [jump-options]`.~
+            - ~In fact, `xper jump [-s|sort-options] [jump-options]` always run `xper sort [sort-options]` first (if index file doesn't exist of `-s` flag is present), and then `xper jump [jump-options]`.~
+        - ~[no need; `sort -ct` kinda does this] `xper sort -ref` to sort based on true references.~
+- ~Add `xper broadcast <file> --to <vXX**> [-g|-u <user>]` to broadcast a file to (1) vXX only -- `<vXX>`, or (2) vXXY for all Y -- `<vXX*>`, or (3) vXXY...Z for all Y...Z -- `<vXX**>`.~
+- ~Add `xper run <command> --version <vXX**> [-g|-u <user>] --workers <n>` to run script in implied versions accordingly (similar to `xper broadcast <file> --to <vXX**>`) with up to `n` workers at a time.~
 - Write tests for all of these new features.
+- ~Implement `xper jump [-p <n>|-ref <n>]` to move back n parent|reference versions back from where you are.~
+
+### TODO - v3
+
+- `xper make story [--target <vXYZ>] [--source <vX>] [--llm <llm> [--prompt <prompt>]] [--format jekyll|markdown|json] [--template <jekyll-template>]` to create a story.
+    - Creates a linear storyline that starts from `<vX>` and goes until `<vXYZ>`. If `--llm` option is not used, the generated stoyline is static (ie, shows diffs from one version to another, shows logs and README.md for each version in the lineage); if `--llm` is used, then llm analizes versions and all the diffs and writes a natural story of experiment progression.
+    - `--target` default: current version.
+    - `source` default: the root version from which target followed (based on reference field only, not parent field).
+    - `--format` default: jekyll.
+    - `--template` default: some generic jekyll template.
+    - `--llm` is in paid plan.
+- Add subscription options on the [xper.dev](xper.dev) website.
+- Implement `xper flatten` and `xper unflatten` to flatten all versions baseed on their modification times (`xper sort -mt`) and unflatten the linear version based on the .xper file, respectively.
+    - Flattened versions' .xper file will contain two additional fields and the "reference" field will be overwritten after flattening:
+        - + `version=<unflattened-version>`
+        - + `reference_unflattened=<unflattened-reference>`
+        - = `reference=<CURRENT_REFERENCE-1`
+    - `xper unflatten` will rename `CURRENT_VERSION` with `<unflattened-version>` and `reference` field's value with `<unflattened-reference>`.
 

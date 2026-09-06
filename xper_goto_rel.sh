@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# usage: xper_goto_rel.sh FLAG_GLOBAL FLAG_WRAP FLAG_FORWARD INT_STEPS STR_USER FLAG_FIRST FLAG_LAST FLAG_SORT FLAG_CTIME FLAG_MTIME
+# usage: xper_goto_rel.sh FLAG_GLOBAL FLAG_WRAP FLAG_FORWARD INT_STEPS STR_USER FLAG_FIRST FLAG_LAST FLAG_SORT FLAG_CTIME FLAG_MTIME FLAG_PARENT FLAG_REFERENCE
 
 GLOBAL=$1
 WRAP=$2
@@ -11,12 +11,39 @@ LAST=$7
 SORT=$8
 CTIME=$9
 MTIME=${10}
+PARENT=${11}
+REFERENCE=${11}
 
 USERNAME=$(xper_user.sh)
 CURRENT_VERSION=$(xper_version.sh 1)
 PROJ_DIR=$(xper_rootdir.sh)
 ROOT_DIR=$(xper_rootdir.sh)
 INDEX_FP=$ROOT_DIR/.index
+
+# handling [-par <n>] [-ref <n>]
+version=""
+if [[ $PARENT -eq 1 ]]; then
+	parent_versions=$(xper_version.sh 1 | rev | cut -d 'v' -f 1 | rev | grep -o '\.' | wc -l | tr -d ' ')
+	if [[ $STEPS -gt $parent_versions ]]; then
+		STEPS=$parent_versions
+	fi
+
+	version=$(xper_version.sh 1 | rev | cut -d '.' -f $((STEPS+1))- | rev)
+	version_number=$(echo $version | rev | cut -d '_' -f 1 | rev)
+	version_owner=$(echo $version | rev | cut -d '_' -f 2 | rev)
+	# echo jmp by par version=$version $version_number $version_owner
+	xper_goto.sh "$version_number" "$version_owner"
+	exit $?
+elif [[ $REFERENCE -eq 1 ]]; then
+	version=$(xper_ref.sh)
+	# echo jmp by ref
+	if [[ $version != "" ]]; then
+		xper.sh jump -ref $((STEPS-1))
+		exit $?
+	fi
+	exit 0
+fi
+# done
 
 include=".+_v[0-9].*"
 if [[ $USER == "" && $GLOBAL -ne 1 ]]; then
