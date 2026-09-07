@@ -37,14 +37,20 @@ else
 
 		output=($(python3 ~/Desktop/Projects/xper/branch_parents.py --root "$root_branch"))
 		curr_branch=$(git branch --show-current)
+		echo "output:"
+		echo ${output[@]} | xargs printf "%s\n"
 
 		for branch in ${branches[@]}; do
-			if ! echo $output | cut -d ':' -f 2 | xargs printf "%s\n" | grep -wq "$branch"; then
+			if ! echo ${output[@]} | xargs printf "%s\n" | cut -d ':' -f 2 | grep -wq "$branch"; then
 				if [[ $branch == $curr_branch ]]; then
 					other_branches=($(echo $branches | xargs printf "%s\n" | grep -v $curr_branch))
 					git checkout ${other_branches[0]}
 				fi
+				echo "deleting branch... ${branch}"
 				git branch -D ${branch}
+				if [[ $GIT_REPO != "" ]]; then
+					git push origin --delete ${branch}
+				fi
 			fi
 		done
 
@@ -67,22 +73,22 @@ else
 			echo "(hash=$branch_hash) branch=$branch name=$branch_name parent=$branch_parent"
 
 			if git branch --format '%(refname:short)' | grep -wq "__${branch_name}__"; then
-				git branch -m __${branch_name}__ $branch
-				echo "[xperify] renamed $branch_name to ${branch}"
+				git branch -m __${branch_name}__ ${username}_${branch}
+				echo "[xperify] renamed __${branch_name}__ to ${username}_${branch}"
 			else
-				git checkout -b $branch $branch_hash
-				echo "[xperify] created a new branch $branch"
+				git checkout -b ${username}_${branch} $branch_hash
+				echo "[xperify] created a new branch ${username}_${branch}"
 			fi
 
 			if [[ $GIT_REPO != "" ]]; then
 				echo "[xperify] pushing updates to remote repo..."
-				git push origin -u $branch
-				git push origin --delete $branch_old
+				git push origin -u ${username}_${branch}
 			fi
 
-			git checkout $branch
+			git checkout ${username}_${branch}
 			printf "user=$username\nmode=normal\nlocked=0\ntag=\n" > .xper
-			printf "log=\nowner=$username\nreference=$parent\n" >> .xper
+			printf "log=\nowner=$username\n" >> .xper
+			printf "reference=${username}_${branch_parent}\n" >> .xper
 			printf "finished=0\n" >> .xper
 			printf ".heads\n.heads_filtered\n.index\n" >> .gitignore
 			git add $ROOT_DIR && git commit -m 'xper updated .gitignore'

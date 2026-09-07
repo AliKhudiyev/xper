@@ -67,8 +67,8 @@ Release version semantics is easy and simple: `xper-vX.Y`. `X` increases by 1 ea
 ### TODO - v2
 - ~Add `xper gitify` and `xperify` commands to convett an xper repo to git repo and an already existing git repo to an xper repo.~
 - Webify xper repo by
-    - Showing reference counts
-    - Searching for similar experiments based on references.
+    - ~Showing referencing children.~
+    - ~[no need] Searching for similar experiments based on references.~
     - ~Counting linear version increments based on the time of version creation (as opposed to version ancestry).~
         - ~`xper sort [-ct|-mt] [sort-options]` for sorting based on the creation/modification timestamps.~
         - ~`xper jump [-ct|-mt] [jump-options]` executes `xper sort [-ct|-mt]` first, then `xper jump [jump-options]`.~
