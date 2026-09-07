@@ -35,35 +35,44 @@ else
 			fi
 		fi
 
-		read -p "what is the index of the root branch? [0, ${branch_count}) " root_branch_index
+		output=($(python3 ~/Desktop/Projects/xper/branch_parents.py --root "$root_branch"))
+		curr_branch=$(git branch --show-current)
 
-		if [[ $root_branch_index -ge $branch_count || $root_branch_index -lt 0 ]]; then
-			echo "[xperify] invalid index for the root branch"
-			exit 1
-		fi
-
-		root_branch=${branches[root_branch_index]}
-		output=$(python3 ~/Desktop/Projects/xper/branch_parents.py --root "$root_branch" | grep -v "$root_branch::")
-		echo "[xperify] root branch is [$root_branch]"
-
-		echo output
-		echo $output
-		for ((i=0; i<$branch_count; ++i)); do
-			branch_old=${branches[i]}
-
-			if [[ $branch_old != $root_branch ]]; then
-				branch_version=$(echo $output | sed -E "s/(.+):(.+):(.+)/\3/g")
-				echo branch_version=$branch_version
-				branch="${username}_v${branch_version}"
-				parent_version=$(echo $version | rev | cut -d '.' -f 2- | rev)
-				parent="${username}_v${parent_version}"
-			else
-				branch=$username
-				parent=""
+		for branch in ${branches[@]}; do
+			if ! echo $output | cut -d ':' -f 2 | xargs printf "%s\n" | grep -wq "$branch"; then
+				if [[ $branch == $curr_branch ]]; then
+					other_branches=($(echo $branches | xargs printf "%s\n" | grep -v $curr_branch))
+					git checkout ${other_branches[0]}
+				fi
+				git branch -D ${branch}
 			fi
+		done
 
-			git branch -m $branch_old $branch
-			echo "[xperify] renamed $branch_old to ${branch}"
+		branches=($(git branch --format '%(refname:short)'))
+		# echo pre haha branches=${branches[@]}
+
+		for branch in ${branches[@]}; do
+			# tmp_branch="__${branch}__"
+			# echo haha $(git branch --format '%(refname:short)')
+			# echo "renaming $branch to __${branch}__ temporarily..."
+			git branch -m $branch __${branch}__
+		done
+
+		for line in ${output[@]}; do
+			branch="v$(echo $line | cut -d ':' -f 1)"
+			branch_name=$(echo $line | cut -d ':' -f 2)
+			branch_parent="v$(echo $line | cut -d ':' -f 3)"
+			branch_hash="$(echo $line | cut -d ':' -f 5)"
+
+			echo "(hash=$branch_hash) branch=$branch name=$branch_name parent=$branch_parent"
+
+			if git branch --format '%(refname:short)' | grep -wq "__${branch_name}__"; then
+				git branch -m __${branch_name}__ $branch
+				echo "[xperify] renamed $branch_name to ${branch}"
+			else
+				git checkout -b $branch $branch_hash
+				echo "[xperify] created a new branch $branch"
+			fi
 
 			if [[ $GIT_REPO != "" ]]; then
 				echo "[xperify] pushing updates to remote repo..."
@@ -76,6 +85,7 @@ else
 			printf "log=\nowner=$username\nreference=$parent\n" >> .xper
 			printf "finished=0\n" >> .xper
 			printf ".heads\n.heads_filtered\n.index\n" >> .gitignore
+			git add $ROOT_DIR && git commit -m 'xper updated .gitignore'
 		done
 	else
 		echo "[xperify] operation canceled"
