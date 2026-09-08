@@ -73,14 +73,14 @@ print_help(){
 	print_command_info "acquire" ":" "pull lates changes from remote repository:"
 	print_command_info "release" ":" "push local changes to remote repository"
 	print_command_info "jump" "<version>:[-u|--user <username>]" "go to absolute version of any user (default user is the local user):"
-	print_command_info "jump" "[-w|--wrap]:[-g|--global]:[-b|--backward <steps>]:[-f|--forward <steps>]:[-u|--user <username>]" "traverse the version tree by using relative distance/steps from the current version; -g option traverses the global version tree where everyone's commits exist; -u option lets traversing only particular user's commits:_:(for all users):(for backward jumps):(for forward jumps):(for only particular user)"
+	print_command_info "jump" "[-w|--wrap]:[-g|--global]:[-b|--backward <steps>]:[-f|--forward <steps>]:[-u|--user <username>]:[-par <n>]:[-ref <n>]" "traverse the version tree by using relative distance/steps from the current version; -g option traverses the global version tree where everyone's commits exist; -u option lets traversing only particular user's commits:(for all users):(for backward jumps):(for forward jumps):(for only particular user):jump back by <n> parents:jump back by <n> references"
 	print_command_info "sort" "[--by <log-field>]:" "sort by version numbers or <log-field> if provided:"
 	print_command_info "index" "[--clear]:[--add [<version>]]:[-rm|--remove [<version>]]" "clear the index file:add <version> (current version by default) from the index file:remove <version> (current version by default) from the index file"
 	print_command_info "index" "[--after|--before|--swap <vXY>] [<vXX>:" "put <vXX> (current version by default) after/before/swap <vXY> in the index file"
 	print_command_info "diff" "<version>:" "show diff between current version and <version>:"
 	print_command_info "diff jump" "[jump-options]:" "show diff between current version and the one after jump:"
-	print_command_info "broadcast" "[-p|--path <filepath>]:[-v|--to <vX**>]:[-g|--global]:[-u|--user <user>]" "copy <filepath> content recursively to versions matching <vX>/<vX*>/<vX**>::(global broadcasting):(user-level broadcasting)"
-	print_command_info "run <command>" "[-v|--to <vX**>]:[-g|--global]:[-u|--user <user>]:[--workers <n>]:[-o <output-dir>]:[--clear]" "execute <command> in all versions matched by <vX>/<vX*>/<vX**>:::use <n> parallel jobs::"
+	print_command_info "broadcast" "[-p|--path <filepath>]:[-v|--to <vX**>]:[-g|--global]:[-u|--user <username>]" "copy <filepath> content recursively to versions matching <vX>/<vX*>/<vX**>::(global broadcasting):(user-level broadcasting)"
+	print_command_info "run <command>" "[-v|--to <vX**>]:[-g|--global]:[-u|--user <username>]:[--workers <n>]:[-o|--output <output-dir>]:[--clear]" "execute <command> in all versions matched by <vX>/<vX*>/<vX**>:::use <n> parallel jobs::"
 
 	echo "  -------------- auxiliary --------------"
 	print_command_info "finish" ":" "lock current version (permit further modifications) and backup to remote repository (if any)"
@@ -368,7 +368,7 @@ case $CMD in
 		echo "[xper] use xper_ctx.sh tag [<your-tag>]"
 		# xper_new.sh "$OPTARG_TAG"
 		;;
-	delete)
+	del|delete)
 		xper_delete.sh
 		;;
 	update)
