@@ -4,5 +4,5 @@
 FILEPATH=$1
 ROOT_DIR=$(xper_rootdir.sh)
 
-echo $FILEPATH >> $ROOT_DIR/.gitignore
+sed -E "/$FILEPATH/d" $ROOT_DIR/.gitignore > $ROOT_DIR/.gitignore.tmp && mv $ROOT_DIR/.gitignore.tmp $ROOT_DIR/.gitignore
 echo "[xper_track] $FILEPATH tracked"
