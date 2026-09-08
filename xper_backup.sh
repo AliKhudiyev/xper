@@ -10,7 +10,7 @@ if [[ $PUSHLOCKED -eq 1 ]]; then
 	exit 0
 fi
 
-git ls-remote --exit-code --heads origin $VERSION
+git ls-remote --exit-code --heads origin $VERSION > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
 	xper.sh update
 	failed=$?

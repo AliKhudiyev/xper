@@ -32,6 +32,6 @@ echo "[xper_init] initalized with username [$USERNAME]"
 printf "user=${USERNAME}\nmode=normal\nlocked=0\ntag=\nlog=\n" > .xper
 printf "owner=${USERNAME}\nreference=\nfinished=0\n" >> .xper
 printf "created=$(date +'%Y-%m-%d_%H:%M:%S_%z')\n" >> .xper
-printf ".heads\n.heads_filtered\n.index\n" >> .gitignore
+printf ".gitignore\n.heads\n.heads_filtered\n.index\n" >> .gitignore
 
 xper_save.sh "[as initial placeholder commit]" 1
