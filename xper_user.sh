@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # usage: xper_user.sh
 
-if [[ ! -d .git ]]; then
-	echo ""
-	exit 0
-fi
+# if [[ ! -d .git ]]; then
+# 	echo ""
+# 	exit 0
+# fi
 
 USERNAME="$(git config --local user.name)"
 if [[ ${#USERNAME} -eq 0 ]]; then
