@@ -79,6 +79,8 @@ print_help(){
 	print_command_info "index" "[--after|--before|--swap <vXY>] [<vXX>:" "put <vXX> (current version by default) after/before/swap <vXY> in the index file"
 	print_command_info "diff" "<version>:" "show diff between current version and <version>:"
 	print_command_info "diff jump" "[jump-options]:" "show diff between current version and the one after jump:"
+	print_command_info "broadcast" "[-p|--path <filepath>]:[-v|--to <vX**>]:[-g|--global]:[-u|--user <user>]" "copy <filepath> content recursively to versions matching <vX>/<vX*>/<vX**>::(global broadcasting):(user-level broadcasting)"
+	print_command_info "run <command>" "[-v|--to <vX**>]:[-g|--global]:[-u|--user <user>]:[--workers <n>]:[-o <output-dir>]:[--clear]" "execute <command> in all versions matched by <vX>/<vX*>/<vX**>:::use <n> parallel jobs::"
 
 	echo "  -------------- auxiliary --------------"
 	print_command_info "finish" ":" "lock current version (permit further modifications) and backup to remote repository (if any)"
@@ -88,7 +90,10 @@ print_help(){
 	print_command_info "help" ":" "print this whole message to terminal:"
 }
 
-if [[ $# -eq 0 || $1 == "help" ]]; then print_help; fi
+if [[ $# -eq 0 || $1 == "help" ]]; then
+	print_help
+	exit 0
+fi
 
 CMD=$1
 shift
