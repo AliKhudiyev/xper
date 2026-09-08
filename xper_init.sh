@@ -35,3 +35,5 @@ printf "created=$(date +'%Y-%m-%d_%H:%M:%S_%z')\n" >> .xper
 printf ".gitignore\n.heads\n.heads_filtered\n.index\n" >> .gitignore
 
 xper_save.sh "[as initial placeholder commit]" 1
+xper_backup.sh 0
+xper_init.sh 1 "" 0 1 0
