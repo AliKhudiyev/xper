@@ -82,6 +82,10 @@ pick_new_version(){
 
 new_from_scratch(){
 	git checkout $USERNAME 2>/dev/null 2>&1
+	if [[ $? -ne 0 ]]; then
+		echo "[xper_new] could not switch to root $USERNAME"
+		exit 1
+	fi
 	CHILDREN=$(git branch --list "${USERNAME}_v*" | grep -vE ".+v[0-9]+\..*" | sed -E "s/.+_v([0-9]+)/\1/g" | sort -n | tail -1)
 	# echo "${USERNAME}'s last children = $CHILDREN"
 	git checkout -b ${USERNAME}_v$((CHILDREN+1)) > /dev/null 2>&1
