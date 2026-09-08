@@ -2,6 +2,7 @@
 # usage: xper_backup.sh FLAG_GLOBAL
 
 GLOBAL=$1
+VERSION=$(xper_version.sh 1)
 
 PUSHLOCKED=$(xper_locked.sh)
 if [[ $PUSHLOCKED -eq 1 ]]; then
@@ -9,12 +10,15 @@ if [[ $PUSHLOCKED -eq 1 ]]; then
 	exit 0
 fi
 
-xper.sh update
-failed=$?
+git ls-remote --exit-code --heads origin $VERSION
+if [[ $? -eq 0 ]]; then
+	xper.sh update
+	failed=$?
 
-if [[ $failed -ne 0 ]]; then
-	echo "[xper_backup.sh] failed"
-	exit $failed
+	if [[ $failed -ne 0 ]]; then
+		echo "[xper_backup.sh] failed due to sync"
+		exit $failed
+	fi
 fi
 
 GIT_REPO=$(git remote -v)
